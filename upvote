@@ -1,0 +1,19 @@
+(function() {
+    'use strict';
+
+    // Pictures
+    document.querySelectorAll("a[id^=vote_up]:not(.active)").forEach(
+        function(item) {item.click()}
+    );
+
+    // News announcements
+    document.querySelectorAll("span[id^=VoteUpBtn_]:not(.btn_active)").forEach(
+        function(item) {item.click()}
+    );
+
+    // Friends Reviews
+    document.querySelectorAll("a[id^=RecommendationVoteUpBtn]:not(.btn_active)").forEach(
+        function(item) {item.click()}
+    );
+
+})();
