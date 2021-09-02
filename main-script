@@ -7,23 +7,31 @@
 // @match        *://store.steampowered.com/app/*
 // @match        *://store.steampowered.com/*
 // @match        *://store.steampowered.com/explore/*
+// @match      	 *://steamcommunity.com/*
+// @match      	 *://forums.steampowered.com/*
+// @match      	 *://store.steamgames.com/*
 // @icon      	 https://store.steampowered.com/favicon.ico
 // @supportURL   https://steamcommunity.com/id/pamajinho/
-// @grant        none
+// @run-at		 document-start
+// @grant 		 GM_getValue
+// @grant 		 GM_setValue
+// @grant 		 GM_listValues
+// @grant 		 GM_deleteValue
+// @grant 		 GM_xmlhttpRequest
+// @grant        GM_addStyle
 // @copyright    2021, bitter
-// @run-at       document-end
 // ==/UserScript==
 
 console.log('Steam Infinite Wishlister -- Loaded');
 
 (function () {
     var category_icons = document.getElementsByClassName('category_icon');
-    
+
     if (category_icons) {
         var has_cards = false;
         var is_free = false;
         var is_dlc = false;
-        
+
         // check if this is a free app, in which case don't add it to wishlist
         var btn_addtocart = document.getElementsByClassName('btn_addtocart');
         if (btn_addtocart) {
@@ -37,14 +45,14 @@ console.log('Steam Infinite Wishlister -- Loaded');
                 }
             }
         }
-        
+
         // check if it has cards
         for (var i=0; i < category_icons.length; i++) {
             if (category_icons[i].src && category_icons[i].src.match('ico_cards')) {
                 has_cards = true;
                 break;
             }
-            
+
             // check if this is a DLC app, in which case don't add it to wishlist
             if (category_icons[i].src && category_icons[i].src.match('ico_dlc')) {
                 is_dlc = true;
@@ -81,4 +89,4 @@ console.log('Steam Infinite Wishlister -- Loaded');
 //Start a new one
 (function () {
     document.getElementById("refresh_queue_btn").click();
-    }());
+}());
