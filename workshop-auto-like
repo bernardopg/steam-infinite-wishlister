@@ -1,0 +1,6 @@
+//Start a new one
+(function () {
+    document.getElementById("VoteUpBtn").click();
+    SetTimeout(2000);
+    document.getElementById("voteNext").click();
+}());
