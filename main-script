@@ -1,27 +1,26 @@
 // ==UserScript==
 // @name         Steam Infinite Wishlister
 // @namespace    https://github.com/bernardopg/steam-infinite-wishlister
-// @version      0.2
+// @version      0.1
 // @description  Automatically adds a game to your Steam wishlist when viewing its store page if it has cards, and start a new one. FOREVER.
 // @author       Bitter
 // @match        *://store.steampowered.com/app/*
 // @match        *://store.steampowered.com/*
 // @match        *://store.steampowered.com/explore/*
 // @match      	 *://steamcommunity.com/*
-// @match      	 *://forums.steampowered.com/*
-// @match      	 *://store.steamgames.com/*
 // @icon      	 https://store.steampowered.com/favicon.ico
 // @supportURL   https://steamcommunity.com/id/pamajinho/
-// @run-at		 document-start
-// @grant 		 GM_getValue
-// @grant 		 GM_setValue
-// @grant 		 GM_listValues
-// @grant 		 GM_deleteValue
-// @grant 		 GM_xmlhttpRequest
-// @grant        GM_addStyle
+// @run-at		 document-end
+// @grant 		 none
 // @copyright    2021, bitter
 // ==/UserScript==
 
+//Go to the next game
+(function () {
+    document.getElementById("queueCtn").getElementsByClassName("btn_next_in_queue btn_next_in_queue_trigger").click();
+}());
+
+//Check if it's able to drop cards
 console.log('Steam Infinite Wishlister -- Loaded');
 
 (function () {
@@ -43,6 +42,53 @@ console.log('Steam Infinite Wishlister -- Loaded');
                         break;
                     }
                 }
+            }
+        }
+
+        // check if it has cards
+        for (var i=0; i < category_icons.length; i++) {
+            if (category_icons[i].src && category_icons[i].src.match('ico_cards')) {
+                has_cards = true;
+                break;
+            }
+
+            // check if this is a DLC app, in which case don't add it to wishlist
+            if (category_icons[i].src && category_icons[i].src.match('ico_dlc')) {
+                is_dlc = true;
+                break;
+            }
+        }
+
+        // if it does have cards and isn't a F2P app or DLC, add it to the wishlist
+        if (has_cards && !is_free && !is_dlc) {
+            console.log('Steam Infine Wishlister -- This app has cards. Adding to Wishlist.');
+
+            var wishlist_area = document.getElementById('add_to_wishlist_area');
+            if (wishlist_area && wishlist_area.firstElementChild && wishlist_area.firstElementChild.href && wishlist_area.firstElementChild.href != '' && wishlist_area.firstElementChild.href.indexOf('javascript:AddToWishlist(') === 0) {
+                try {
+                    // click the Add To Wishlist button
+                    wishlist_area.firstElementChild.click();
+
+                    // highlight the On Wishlist button to indicate that it has been auto-clicked
+                    document.getElementsByClassName('queue_btn_active')[0].style.border ='1px solid #999999';
+                } catch (err) {
+                    console.log('Steam Infinite Wishlister -- Error adding to Wishlist. Try reloading the page.');
+                }
+            } else {
+                console.log('Steam Infinite Wishlister -- This app is already on your Wishlist or there was an error.');
+            }
+        } else {
+            console.log('Steam Infinite Wishlister -- This app does not have cards.');
+        }
+    } else {
+        console.log('Steam Infinite Wishlister -- Script error.');
+    }
+}());
+
+//Start a new one
+(function () {
+    document.getElementById("refresh_queue_btn").click();
+}());
             }
         }
 
