@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Steam Infinite Wishlister
 // @namespace    https://github.com/bernardopg/steam-infinite-wishlister
-// @version      0.1
+// @version      0.2
 // @description  Automatically adds a game to your Steam wishlist when viewing its store page if it has cards, and start a new one. FOREVER.
 // @author       Bitter
 // @match        *://store.steampowered.com/app/*
 // @match        *://store.steampowered.com/*
 // @match        *://store.steampowered.com/explore/*
 // @icon      	 https://store.steampowered.com/favicon.ico
-// @supportURL   https://steamcommunity.com/id/pamajito/
+// @supportURL   https://steamcommunity.com/id/pamajinho/
 // @grant        none
 // @copyright    2021, bitter
 // @run-at       document-end
