@@ -1,20 +1,3 @@
-// ==UserScript==
-// @name         Steam Infinite Wishlister Card Check
-// @namespace    https://github.com/bernardopg/steam-infinite-wishlister
-// @version      0.1
-// @description  Automatically adds a game to your Steam wishlist when viewing its store page if it has cards, and start a new one. FOREVER.
-// @author       Bitter
-// @match        *://store.steampowered.com/app/*
-// @match        *://store.steampowered.com/*
-// @match        *://store.steampowered.com/explore/*
-// @match      	 *://steamcommunity.com/*
-// @icon      	 https://store.steampowered.com/favicon.ico
-// @supportURL   https://steamcommunity.com/id/pamajinho/
-// @run-at		 document-end
-// @grant 		 none
-// @copyright    2021, bitter
-// ==/UserScript==
-
 //Check if it's able to drop cards
 console.log('Steam Infinite Wishlister -- Loaded');
 
