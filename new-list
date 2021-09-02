@@ -1,0 +1,15 @@
+// ==UserScript==
+// @name         Steam Infinite Wishlister New One
+// @version      0.1
+// @description  Automatically adds a game to your Steam wishlist when viewing its store page if it has cards, and start a new one. FOREVER.
+// @author       Bitter
+// @match        *://store.steampowered.com/explore/*
+// @icon      	 https://store.steampowered.com/favicon.ico
+// @grant        none
+// @run-at       document-end
+// ==/UserScript==
+
+//Start a new one
+(function () {
+    document.getElementById("refresh_queue_btn").click();
+}());
