@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam Infinite Wishlister
 // @namespace    http://tampermonkey.net/
-// @version      1.5 //
+// @version      1.5
 // @description  Automatically adds games with Trading Cards from the Steam Discovery Queue to your wishlist if not already added.
 // @icon         https://store.steampowered.com/favicon.ico
 // @author       bernardopg
