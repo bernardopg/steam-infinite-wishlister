@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Steam Infinite Wishlister
 // @namespace    http://tampermonkey.net/
-// @version      2.0
-// @description  Advanced Steam Discovery Queue wishlisting: Trading Card/DLC/Owned options, Age Skip, Pause/Resume, Counters, Robustness++
+// @version      2.1
+// @description  Automatização avançada para adicionar jogos à lista de desejos na fila de descoberta do Steam: opções de cartas colecionáveis/DLC/já possuídos, bypass de idade, pausar/retomar, contadores e robustez aprimorada
 // @icon         https://store.steampowered.com/favicon.ico
-// @author       bernardopg
+// @author       bernardopg (otimizado por Cline)
 // @match        *://store.steampowered.com/app/*
 // @match        *://store.steampowered.com/explore*
 // @match        *://store.steampowered.com/explore/
@@ -22,73 +22,87 @@
   "use strict";
 
   // ====================================
+  // Compatibilidade Tampermonkey/GM
+  // ====================================
+  function checkGMApi(fnName) {
+    if (typeof window[fnName] !== "function" && typeof unsafeWindow?.[fnName] !== "function") {
+      console.error(`[Steam Wishlist Looper] API ${fnName} não está disponível. O script pode não funcionar corretamente nesta versão do Tampermonkey/Greasemonkey.`);
+      return false;
+    }
+    return true;
+  }
+  // Checagem básica das principais APIs
+  const GM_APIS = ["GM_setValue", "GM_getValue", "GM_addStyle", "GM_registerMenuCommand", "GM_xmlhttpRequest"];
+  for (const fn of GM_APIS) checkGMApi(fn);
+
+  // ====================================
   // Module: Configuration
   // ====================================
   const CONFIG = {
-    // Timing configuration (all values in milliseconds)
+    // Configuração de tempos (todos os valores em milissegundos)
     TIMING: {
-      CHECK_INTERVAL: 3500, // How often to check the current page when running the loop
-      ACTION_DELAY: 1800, // Delay after performing a major action (like adding to wishlist)
-      ADVANCE_DELAY: 600, // Delay before advancing to next item (1/3 of ACTION_DELAY)
-      PROCESSING_RELEASE_DELAY: 900, // Delay before releasing processing lock (1/2 of ACTION_DELAY)
-      QUEUE_GENERATION_DELAY: 1500, // Delay after attempting to generate a new queue
-      QUEUE_LOCK_RELEASE_DELAY: 2000, // Delay before releasing queue generation lock (unused currently)
-      INITIAL_START_DELAY: 1500, // Delay before starting the loop on page load
-      WISHLIST_CONFIRM_TIMEOUT: 1500, // Timeout for confirming wishlist action success
-      MINI_DELAY: 100, // Very small delay for minor operations
-      VERSION_CHECK_INTERVAL: 86400000, // Check for updates once per day (24h)
+      CHECK_INTERVAL: 3000, // Com que frequência verificar a página atual durante a execução do loop
+      ACTION_DELAY: 1500, // Atraso após realizar uma ação importante (como adicionar à lista de desejos)
+      ADVANCE_DELAY: 500, // Atraso antes de avançar para o próximo item (1/3 do ACTION_DELAY)
+      PROCESSING_RELEASE_DELAY: 750, // Atraso antes de liberar o bloqueio de processamento (1/2 do ACTION_DELAY)
+      QUEUE_GENERATION_DELAY: 1200, // Atraso após tentar gerar uma nova fila
+      QUEUE_LOCK_RELEASE_DELAY: 1800, // Atraso antes de liberar o bloqueio de geração de fila (não usado atualmente)
+      INITIAL_START_DELAY: 1200, // Atraso antes de iniciar o loop no carregamento da página
+      WISHLIST_CONFIRM_TIMEOUT: 1300, // Tempo limite para confirmar o sucesso da ação da lista de desejos
+      MINI_DELAY: 80, // Atraso muito pequeno para operações menores
+      VERSION_CHECK_INTERVAL: 86400000, // Verificar atualizações uma vez por dia (24h)
     },
 
-    // DOM Selectors - organized by functional area
+    // Seletores DOM - organizados por área funcional
     SELECTORS: {
-      // Wishlist related selectors
+      // Seletores relacionados à lista de desejos
       wishlist: {
-        area: "#add_to_wishlist_area, .queue_wishlist_ctn", // Added queue_wishlist_ctn for explore page
+        area: "#add_to_wishlist_area, .queue_wishlist_ctn, .ds_wishlist_ctn", // Atualizado para incluir seletores novos
         addButton:
-          ".add_to_wishlist .btn_addtocart .btnv6_blue_hoverfade, .queue_wishlist_button .btnv6_blue_hoverfade", // More specific button selectors + explore page
-        successIndicator: ".add_to_wishlist_area_success, .queue_btn_active", // Added queue_btn_active for explore
+          ".add_to_wishlist .btn_addtocart .btnv6_blue_hoverfade, .queue_wishlist_button .btnv6_blue_hoverfade, .ds_wishlist_button .btnv6_blue_hoverfade", // Seletores de botão mais específicos
+        successIndicator: ".add_to_wishlist_area_success, .queue_btn_active, .ds_wishlist_button.ds_wishlist_added", // Indicadores de sucesso
       },
 
-      // Game information selectors
+      // Seletores de informações do jogo
       gameInfo: {
         tradingCardsIndicator:
-          '.game_area_details_specs a[href*="/tradingcards/"], a.trading_card_details_link[href*="/tradingcards/"]',
-        title: ".apphub_AppName",
-        queueRemainingText: ".queue_sub_text",
-        inLibraryIndicator: ".game_area_already_owned",
-        dlcIndicator: ".game_area_dlc_bubble",
-        appTypeElement: ".game_details .details_block",
+          '.game_area_details_specs a[href*="/tradingcards/"], a.trading_card_details_link[href*="/tradingcards/"], .icon.ico_cards',
+        title: ".apphub_AppName, .game_title_area .pageheader, .appHubAppName",
+        queueRemainingText: ".queue_sub_text, .discovery_queue_overlay_bg .subtext",
+        inLibraryIndicator: ".game_area_already_owned, .ds_owned_flag, .ds_flag.ds_owned_flag",
+        dlcIndicator: ".game_area_dlc_bubble, .ds_flag.ds_dlc_flag",
+        appTypeElement: ".game_details .details_block, .glance_details .details_block, .game_area_purchase_game_wrapper .game_area_purchase_game",
       },
 
-      // Queue navigation selectors
+      // Seletores de navegação da fila
       queueNav: {
         nextButton:
-          ".btn_next_in_queue_trigger, .btn_next_in_queue .btnv6_lightblue_blue", // Added second selector for explore page
+          ".btn_next_in_queue_trigger, .btn_next_in_queue .btnv6_lightblue_blue, .ds_options .btnv6_blue_hoverfade[href*='next']", // Seletores atualizados
         nextForm: "#next_in_queue_form",
-        ignoreButtonContainer: "#ignoreBtn", // Used mainly for the button within
-        ignoreButtonInContainer: ".queue_btn_ignore",
+        ignoreButtonContainer: "#ignoreBtn, .queue_btn_ignore_ctn", // Usado principalmente para o botão dentro
+        ignoreButtonInContainer: ".queue_btn_ignore, .ds_options .btnv6_blue_hoverfade[onclick*='ignore']",
       },
 
-      // Queue status and management selectors
+      // Seletores de status e gerenciamento da fila
       queueStatus: {
-        container: "#discovery_queue_ctn, #discovery_queue", // Added #discovery_queue for explore page
-        finishedIndicator: ".discover_queue_empty", // Should be sufficient
-        emptyContainer: ".discover_queue_empty",
-        // Selectors for starting a queue
+        container: "#discovery_queue_ctn, #discovery_queue, .discovery_queue_winter_sale_daily_card, .discovery_queue_apps", // Atualizados
+        finishedIndicator: ".discover_queue_empty", // Deve ser suficiente
+        emptyContainer: ".discover_queue_empty, .discovery_queue_empty_refresh_btn",
+        // Seletores para iniciar uma fila
         startLink:
-          ".discovery_queue_start_link, #discovery_queue_start_link, .discovery_queue_winter_sale_cards_header a[href*='discovery_queue'], .discovery_queue_global_header a[href*='discoveryqueue']",
-        // Selectors for starting *another* queue when one finished
+          ".discovery_queue_start_link, #discovery_queue_start_link, .discovery_queue_winter_sale_cards_header a[href*='discovery_queue'], .discovery_queue_global_header a[href*='discoveryqueue'], .btnv6_green_white_innerfade[href*='discoveryqueue']",
+        // Seletores para iniciar *outra* fila quando uma termina
         startAnotherButton:
-          "#refresh_queue_btn, .discover_queue_empty_refresh_btn .btnv6_lightblue_blue, .discover_queue_empty a[href*='discoveryqueue'], .begin_exploring",
+          "#refresh_queue_btn, .discover_queue_empty_refresh_btn .btnv6_lightblue_blue, .discover_queue_empty a[href*='discoveryqueue'], .begin_exploring, .btnv6_green_white_innerfade[href*='discoveryqueue']",
       },
 
-      // Age gate selectors
+      // Seletores de verificação de idade
       ageGate: {
-        storeContainer: "#app_agegate",
-        communityTextContainer: ".agegate_text_container",
+        storeContainer: "#app_agegate, #agecheck_form, .agegate_birthday_selector",
+        communityTextContainer: ".agegate_text_container, .agegate_text",
       },
 
-      // UI selectors
+      // Seletores da interface do usuário
       ui: {
         container: "#wishlist-looper-controls",
         statusElement: "#wl-status",
@@ -108,26 +122,26 @@
       },
     },
 
-    // Storage keys
+    // Chaves de armazenamento
     STORAGE_KEYS: {
-      AUTO_START: "wishlistLooperAutoStartV2", // Renamed to avoid conflict with old versions
-      AUTO_RESTART_QUEUE: "wishlistLooperAutoRestartQueueV2",
-      UI_MINIMIZED: "wishlistLooperUiMinimizedV2",
-      REQUIRE_CARDS: "wishlistLooperRequireCardsV2",
-      SKIP_NON_GAMES: "wishlistLooperSkipNonGamesV2",
-      SKIP_OWNED: "wishlistLooperSkipOwnedV2",
-      LOG_LEVEL: "wishlistLooperLogLevel", // Keep log level key generic
-      SESSION_WISHLIST_COUNT: "wishlistLooperSessionCountV2",
+      AUTO_START: "wishlistLooperAutoStartV3", // Renomeado para evitar conflito com versões anteriores
+      AUTO_RESTART_QUEUE: "wishlistLooperAutoRestartQueueV3",
+      UI_MINIMIZED: "wishlistLooperUiMinimizedV3",
+      REQUIRE_CARDS: "wishlistLooperRequireCardsV3",
+      SKIP_NON_GAMES: "wishlistLooperSkipNonGamesV3",
+      SKIP_OWNED: "wishlistLooperSkipOwnedV3",
+      LOG_LEVEL: "wishlistLooperLogLevel", // Manter a chave de nível de log genérica
+      SESSION_WISHLIST_COUNT: "wishlistLooperSessionCountV3",
       LAST_VERSION_CHECK: "wishlistLooperLastVersionCheck",
-      // Example version check URL (replace with your actual source if hosting)
+      // URL de verificação de versão (substitua pela sua fonte real se estiver hospedando)
       VERSION_CHECK_URL:
         "https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/version.json",
     },
 
-    // App constants
+    // Constantes do aplicativo
     MAX_QUEUE_RESTART_FAILURES: 5,
-    CURRENT_VERSION: "2.0",
-    // URL for version checking, defined in STORAGE_KEYS now for consistency
+    CURRENT_VERSION: "2.1",
+    // URL para verificação de versão, definida em STORAGE_KEYS agora para consistência
     get VERSION_CHECK_URL() {
       return GM_getValue(
         CONFIG.STORAGE_KEYS.VERSION_CHECK_URL,
@@ -710,9 +724,7 @@
      */
     toggleSetting: function (key, currentValue) {
       const newValue = !currentValue;
-      this.updateSetting(key, newValue); // updateSetting handles state update and logging
-
-      // Find the state key again to return the accurate new value from the state object
+      this.updateSetting(key, newValue);
       const stateKeyEntry = Object.entries(CONFIG.STORAGE_KEYS).find(
         ([stateName, gmKey]) => gmKey === key
       );
@@ -724,7 +736,6 @@
           return State.settings[camelCaseKey];
         }
       }
-      // Fallback return if state mapping fails (shouldn't happen)
       return newValue;
     },
   };
@@ -770,42 +781,53 @@
       const matureContentKey = "wants_mature_content";
       const sessionMatureContentKey = "session_mature_content"; // Sometimes needed
 
-      // Calculate a plausible birth date (e.g., >= 21 years ago for safety)
+      // Calculate a plausível birth date (>= 21 anos atrás)
       const twentyOneYearsInSeconds = 21 * 365.25 * 24 * 60 * 60;
       const birthTimestamp = Math.floor(
         Date.now() / 1000 - twentyOneYearsInSeconds
       );
 
-      // Use Lax for better compatibility, Secure is important
-      const baseCookieOptions = `; max-age=315360000; secure; samesite=Lax`; // 10 years expiration
-
-      // Construct cookie strings for each domain
-      const storeDomain = ".store.steampowered.com";
-      const communityDomain = ".steamcommunity.com";
-      const genericDomain = ".steampowered.com"; // Some cookies might be set here
+      // Opções de cookie
+      const baseCookieOptions = `; max-age=315360000; secure; samesite=Lax`; // 10 anos
+      const domains = [
+        ".store.steampowered.com",
+        ".steamcommunity.com",
+        ".steampowered.com",
+        "store.steampowered.com",
+        "steamcommunity.com",
+        "steampowered.com"
+      ];
 
       const cookiesToSet = [
         { key: birthTimeKey, value: birthTimestamp },
         { key: matureContentKey, value: 1 },
-        { key: sessionMatureContentKey, value: 1 }, // Often set without Max-Age
+        { key: sessionMatureContentKey, value: 1 }, // Frequentemente sem max-age
       ];
 
+      let erro = false;
       cookiesToSet.forEach((cookie) => {
-        document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${storeDomain}${baseCookieOptions}`;
-        document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${communityDomain}${baseCookieOptions}`;
-        document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${genericDomain}${baseCookieOptions}`;
-        // Set session cookie without max-age too, just in case
-        if (cookie.key === sessionMatureContentKey) {
-          document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${storeDomain}; secure; samesite=Lax`;
-          document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${communityDomain}; secure; samesite=Lax`;
-          document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${genericDomain}; secure; samesite=Lax`;
-        }
+        domains.forEach((domain) => {
+          try {
+            document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${domain}${baseCookieOptions}`;
+            // Session cookie sem max-age
+            if (cookie.key === sessionMatureContentKey) {
+              document.cookie = `${cookie.key}=${cookie.value}; path=/; domain=${domain}; secure; samesite=Lax`;
+            }
+          } catch (e) {
+            erro = true;
+            Logger.log(`[Steam Age Skip] Erro ao definir cookie ${cookie.key} para domínio ${domain}: ${e.message}`, 0);
+          }
+        });
       });
 
-      Logger.log(
-        `[Steam Age Skip] Age cookies set for domains (Store, Community, Generic).`,
-        1
-      );
+      if (erro) {
+        Logger.log(`[Steam Age Skip] Um ou mais cookies não puderam ser definidos corretamente.`, 0);
+      } else {
+        Logger.log(
+          `[Steam Age Skip] Cookies de idade definidos para múltiplos domínios.`,
+          1
+        );
+      }
     },
 
     /**
@@ -2318,6 +2340,18 @@
         return;
       }
 
+      // 2.1. Verificação de página compatível (evita execução em páginas não Steam)
+      const url = window.location.href;
+      const isCompatiblePage =
+        url.includes('/app/') ||
+        url.includes('/explore') ||
+        url.includes('/curator/') ||
+        url.includes('steamcommunity.com');
+      if (!isCompatiblePage) {
+        Logger.log("Página não compatível. Script não será inicializado.", 1);
+        return;
+      }
+
       // --- Top-level window initialization ---
       Logger.log(
         `Steam Infinite Wishlister v${CONFIG.CURRENT_VERSION} Initializing (Top Window)...`,
@@ -2326,27 +2360,34 @@
 
       // 3. Initialize main functionality once the DOM is ready
       const initializeMainComponents = () => {
-        Logger.log("DOM ready, initializing main components.", 1);
+        try {
+          Logger.log("DOM ready, initializing main components.", 1);
 
-        // Add UI controls (creates elements and updates based on current state)
-        UI.addControls();
+          // Add UI controls (creates elements and updates based on current state)
+          UI.addControls();
 
-        // Perform initial check of page state and handle auto-start/restart logic
-        this.handleInitialPageState();
+          // Perform initial check of page state and handle auto-start/restart logic
+          this.handleInitialPageState();
 
-        // Check for script updates (uses interval logic internally)
-        VersionChecker.checkForUpdates();
+          // Check for script updates (uses interval logic internally)
+          VersionChecker.checkForUpdates();
 
-        // Register userscript menu commands for easy access
-        this.registerMenuCommands();
+          // Register userscript menu commands for easy access
+          this.registerMenuCommands();
 
-        Logger.log("Initialization complete.", 0);
+          Logger.log("Initialization complete.", 0);
 
-        // Set initial status message if loop didn't auto-start
-        if (State.loop.state === "Stopped" && State.ui.elements.status) {
-          // Check if status is still 'Initializing' before setting to 'Stopped'
-          if (State.ui.elements.status.textContent.includes("Initializing")) {
-            UI.updateStatusText("Stopped.");
+          // Set initial status message if loop didn't auto-start
+          if (State.loop.state === "Stopped" && State.ui.elements.status) {
+            // Check if status is still 'Initializing' before setting to 'Stopped'
+            if (State.ui.elements.status.textContent.includes("Initializing")) {
+              UI.updateStatusText("Stopped.");
+            }
+          }
+        } catch (e) {
+          Logger.log(`[Init] Erro durante inicialização: ${e.message}`, 0);
+          if (State.ui.elements.status) {
+            UI.updateStatusText("Erro na inicialização!", "error");
           }
         }
       };

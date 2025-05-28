@@ -1,9 +1,10 @@
 <!-- filepath: /home/bitter/dev/Scripts/steam-infinite-wishlister/README.md -->
 
-# Steam Infinite Wishlister v2.0
+# Steam Infinite Wishlister
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Tampermonkey](https://img.shields.io/badge/Userscript-Tampermonkey-brightgreen.svg)](https://www.tampermonkey.net/)
+[![Versão](https://img.shields.io/badge/versão-2.1-orange.svg)]()
 
 ---
 
@@ -79,6 +80,18 @@ Settings are saved automatically.
 
 ---
 
+## What's New in v2.1
+
+- Improved compatibility with Steam's latest UI layout changes
+- Enhanced detection of game cards, DLCs, and owned games
+- Optimized timing for better performance and reliability
+- Improved age verification bypass
+- More robust error handling
+- Expanded DOM selectors for better compatibility
+- Various minor improvements and bug fixes
+
+---
+
 ## Permissions
 
 This script requires the following Tampermonkey permissions:
@@ -98,6 +111,7 @@ This script requires the following Tampermonkey permissions:
 ## Credits
 
 - Script by [bernardopg](https://github.com/bernardopg)
+- Optimizations by Cline
 - Inspired by the Steam community and card collectors!
 
 ---
@@ -178,6 +192,18 @@ As configurações são salvas automaticamente.
 
 ---
 
+## Novidades na v2.1
+
+- Compatibilidade melhorada com as últimas mudanças de layout da Steam
+- Detecção aprimorada de cartas de jogos, DLCs e jogos já possuídos
+- Tempos otimizados para melhor desempenho e confiabilidade
+- Bypass de verificação de idade aprimorado
+- Tratamento de erros mais robusto
+- Seletores DOM expandidos para melhor compatibilidade
+- Várias pequenas melhorias e correções de bugs
+
+---
+
 ## Permissões
 
 Este script requer as seguintes permissões do Tampermonkey:
@@ -197,6 +223,7 @@ Este script requer as seguintes permissões do Tampermonkey:
 ## Créditos
 
 - Script por [bernardopg](https://github.com/bernardopg)
+- Otimizações por Cline
 - Inspirado pela comunidade Steam e colecionadores de cartas!
 
 ---
