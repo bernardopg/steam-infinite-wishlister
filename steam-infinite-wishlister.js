@@ -164,7 +164,7 @@
     stats: {
       wishlistedThisSession: parseInt(
         sessionStorage.getItem(CONFIG.STORAGE_KEYS.SESSION_WISHLIST_COUNT) ||
-          "0"
+        "0"
       ),
       lastVersionCheck: GM_getValue(CONFIG.STORAGE_KEYS.LAST_VERSION_CHECK, 0),
       latestVersion: null, // Stores fetched latest version
@@ -208,7 +208,12 @@
      * @param {string} statusType - The type of status (info, action, success, skipped, error, paused)
      */
     updateStatusText: function (message, statusType = "info") {
-      if (!State.ui.elements.status) return;
+      if (!State.ui.elements.status) {
+        // Fallback visual
+        const fallback = document.querySelector('#wl-status');
+        if (fallback) fallback.textContent = `Status: ${message}`;
+        return;
+      }
 
       State.ui.elements.status.textContent = `Status: ${message}`;
       // Clear previous status classes before adding new one
@@ -296,163 +301,148 @@
      * Create and add the UI controls to the page
      */
     addControls: function () {
-      // Don't add controls if they already exist
+      const isCompatiblePage = () => {
+        // Só injeta UI em páginas relevantes
+        const url = window.location.href;
+        return (
+          url.includes('/app/') ||
+          url.includes('/explore') ||
+          url.includes('/curator/') ||
+          url.includes('steamcommunity.com')
+        );
+      };
+
+      if (!isCompatiblePage()) return; // Não injeta UI em páginas não suportadas
       if (document.querySelector(CONFIG.SELECTORS.ui.container)) return;
 
-      const controlDiv = document.createElement("div");
+      const controlDiv = document.createElement('div');
       controlDiv.id = CONFIG.SELECTORS.ui.container.substring(1);
-      controlDiv.classList.toggle("wl-minimized", State.settings.uiMinimized);
+      controlDiv.classList.toggle('wl-minimized', State.settings.uiMinimized);
+      controlDiv.setAttribute('role', 'region');
+      controlDiv.setAttribute('aria-label', 'Steam Wishlist Looper Controls');
+      controlDiv.tabIndex = 0;
 
-      // HTML template for the controls
+      // HTML template para os controles, agora com tabindex e aria-label
       controlDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid rgba(199, 213, 224, 0.1);">
-               <strong style="color: #66c0f4; text-shadow: 1px 1px 1px #000; margin-right: auto;">Wishlist Looper</strong>
-               <span title="Wishlisted this session" style="font-size: 10px; margin: 0 10px; color: #a1dd4a;">(<span id="${CONFIG.SELECTORS.ui.wishlistCountElement.substring(
-                 1
-               )}">${State.stats.wishlistedThisSession}</span> Added)</span>
-               <button id="${CONFIG.SELECTORS.ui.minimizeButton.substring(
-                 1
-               )}" title="${
-        State.settings.uiMinimized ? "Restore" : "Minimize"
-      }" style="background: none; border: none; color: #66c0f4; font-size: 14px; cursor: pointer; padding: 0 5px; line-height: 1;">${
-        State.settings.uiMinimized ? "□" : "▬"
-      }</button>
-            </div>
-            <div class="wl-controls-body">
-               <div style="margin-bottom: 5px; display: flex; align-items: center;">
-                   <button id="${CONFIG.SELECTORS.ui.startButton.substring(
-                     1
-                   )}" title="Start/Resume automatic processing">Start</button>
-                   <button id="${CONFIG.SELECTORS.ui.pauseButton.substring(
-                     1
-                   )}" title="Pause automatic processing" disabled>Pause</button>
-                   <button id="${CONFIG.SELECTORS.ui.stopButton.substring(
-                     1
-                   )}" title="Stop processing and disable Auto features">Stop</button>
-               </div>
-               <div style="margin-bottom: 5px;">
-                   <button id="${CONFIG.SELECTORS.ui.processOnceButton.substring(
-                     1
-                   )}" title="Process only the current item">Process Once</button>
-                   <button id="${CONFIG.SELECTORS.ui.skipButton.substring(
-                     1
-                   )}" title="Skip the current item and advance">Skip Item</button>
-               </div>
-               <div id="${CONFIG.SELECTORS.ui.statusElement.substring(
-                 1
-               )}" class="${CONFIG.SELECTORS.ui.statusElement.substring(
-        1
-      )}">Status: Initializing...</div>
-               <div style="margin-top: 8px; border-top: 1px solid rgba(199, 213, 224, 0.2); padding-top: 8px; font-size: 11px;">
-                   <span style="display: block; margin-bottom: 4px; font-weight: bold; color: #66c0f4;">Options:</span>
-                   <label title="Automatically start loop on compatible pages"><input type="checkbox" id="${CONFIG.SELECTORS.ui.autoStartCheckbox.substring(
-                     1
-                   )}">Auto-Start</label>
-                   <label title="Automatically restart queue when finished (requires Auto-Start)" style="margin-left: 10px;"><input type="checkbox" id="${CONFIG.SELECTORS.ui.autoRestartCheckbox.substring(
-                     1
-                   )}">Auto-Restart</label>
-                   <br>
-                   <label title="Only wishlist items that have Steam Trading Cards"><input type="checkbox" id="${CONFIG.SELECTORS.ui.requireCardsCheckbox.substring(
-                     1
-                   )}">Require Cards</label>
-                   <label title="Skip items already in your Steam library" style="margin-left: 10px;"><input type="checkbox" id="${CONFIG.SELECTORS.ui.skipOwnedCheckbox.substring(
-                     1
-                   )}">Skip Owned</label>
-                   <br>
-                   <label title="Skip items identified as DLC, Soundtracks, Demos, etc."><input type="checkbox" id="${CONFIG.SELECTORS.ui.skipNonGamesCheckbox.substring(
-                     1
-                   )}">Skip Non-Games</label>
-               </div>
-               <div id="${CONFIG.SELECTORS.ui.versionInfo.substring(
-                 1
-               )}" style="font-size: 9px; color: #8f98a0; margin-top: 8px; text-align: right;">v${
-        CONFIG.CURRENT_VERSION
-      }</div>
-            </div>
-        `;
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid rgba(199, 213, 224, 0.1);">
+          <strong style="color: #66c0f4; text-shadow: 1px 1px 1px #000; margin-right: auto;">Wishlist Looper</strong>
+          <span title="Wishlisted this session" style="font-size: 10px; margin: 0 10px; color: #a1dd4a;">(<span id="${CONFIG.SELECTORS.ui.wishlistCountElement.substring(1)}">${State.stats.wishlistedThisSession}</span> Added)</span>
+          <button id="${CONFIG.SELECTORS.ui.minimizeButton.substring(1)}" title="${State.settings.uiMinimized ? "Restore" : "Minimize"}" style="background: none; border: none; color: #66c0f4; font-size: 14px; cursor: pointer; padding: 0 5px; line-height: 1;" tabindex="0" aria-label="${State.settings.uiMinimized ? "Restaurar UI" : "Minimizar UI"}">${State.settings.uiMinimized ? "□" : "▬"}</button>
+        </div>
+        <div class="wl-controls-body">
+          <div style="margin-bottom: 5px; display: flex; align-items: center;">
+            <button id="${CONFIG.SELECTORS.ui.startButton.substring(1)}" title="Start/Resume automatic processing" tabindex="0" aria-label="Iniciar ou retomar processamento automático">Start</button>
+            <button id="${CONFIG.SELECTORS.ui.pauseButton.substring(1)}" title="Pause automatic processing" disabled tabindex="0" aria-label="Pausar processamento automático">Pause</button>
+            <button id="${CONFIG.SELECTORS.ui.stopButton.substring(1)}" title="Stop processing and disable Auto features" tabindex="0" aria-label="Parar processamento e desabilitar auto">Stop</button>
+          </div>
+          <div style="margin-bottom: 5px;">
+            <button id="${CONFIG.SELECTORS.ui.processOnceButton.substring(1)}" title="Process only the current item" tabindex="0" aria-label="Processar apenas o item atual">Process Once</button>
+            <button id="${CONFIG.SELECTORS.ui.skipButton.substring(1)}" title="Skip the current item and advance" tabindex="0" aria-label="Pular item atual">Skip Item</button>
+          </div>
+          <div id="${CONFIG.SELECTORS.ui.statusElement.substring(1)}" class="${CONFIG.SELECTORS.ui.statusElement.substring(1)}">Status: Initializing...</div>
+          <div style="margin-top: 8px; border-top: 1px solid rgba(199, 213, 224, 0.2); padding-top: 8px; font-size: 11px;">
+            <span style="display: block; margin-bottom: 4px; font-weight: bold; color: #66c0f4;">Options:</span>
+            <label title="Automatically start loop on compatible pages"><input type="checkbox" id="${CONFIG.SELECTORS.ui.autoStartCheckbox.substring(1)}" tabindex="0">Auto-Start</label>
+            <label title="Automatically restart queue when finished (requires Auto-Start)" style="margin-left: 10px;"><input type="checkbox" id="${CONFIG.SELECTORS.ui.autoRestartCheckbox.substring(1)}" tabindex="0">Auto-Restart</label>
+            <br>
+            <label title="Only wishlist items that have Steam Trading Cards"><input type="checkbox" id="${CONFIG.SELECTORS.ui.requireCardsCheckbox.substring(1)}" tabindex="0">Require Cards</label>
+            <label title="Skip items already in your Steam library" style="margin-left: 10px;"><input type="checkbox" id="${CONFIG.SELECTORS.ui.skipOwnedCheckbox.substring(1)}" tabindex="0">Skip Owned</label>
+            <br>
+            <label title="Skip items identified as DLC, Soundtracks, Demos, etc."><input type="checkbox" id="${CONFIG.SELECTORS.ui.skipNonGamesCheckbox.substring(1)}" tabindex="0">Skip Non-Games</label>
+          </div>
+          <div id="${CONFIG.SELECTORS.ui.versionInfo.substring(1)}" style="font-size: 9px; color: #8f98a0; margin-top: 8px; text-align: right;">v${CONFIG.CURRENT_VERSION}</div>
+        </div>
+      `;
+
+      // Adiciona fallback visual se algum elemento não for encontrado
+      setTimeout(() => {
+        if (!State.ui.elements.startBtn || !State.ui.elements.pauseBtn) {
+          controlDiv.innerHTML += '<div style="color:#ff7a7a;font-size:11px;">Erro ao carregar UI. Recarregue a página.</div>';
+        }
+      }, 1000);
 
       // Apply styles via GM_addStyle
       GM_addStyle(`
-          #${CONFIG.SELECTORS.ui.container.substring(1)} {
-            position: fixed; bottom: 10px; right: 10px; z-index: 9999;
-            background: rgba(27, 40, 56, 0.9); color: #c7d5e0; padding: 10px;
-            border-radius: 5px; font-family: 'Motiva Sans', sans-serif; font-size: 12px;
-            border: 1px solid #000; box-shadow: 0 0 10px rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-            transition: all 0.3s ease-in-out; width: 250px;
-          }
-          #${CONFIG.SELECTORS.ui.container.substring(1)}.wl-minimized {
-            padding: 5px 10px; height: auto; width: auto; min-width: 150px;
-          }
-          #${CONFIG.SELECTORS.ui.container.substring(
-            1
-          )}.wl-minimized .wl-controls-body {
-            display: none;
-          }
-          #${CONFIG.SELECTORS.ui.container.substring(1)} button {
-            padding: 4px 8px; border-radius: 2px; cursor: pointer; font-size: 11px;
-            margin-right: 5px; border: 1px solid; transition: filter 0.15s ease;
-          }
-          #${CONFIG.SELECTORS.ui.container.substring(
-            1
-          )} button:last-child { margin-right: 0; }
-          #${CONFIG.SELECTORS.ui.container.substring(1)} button:disabled {
-            background-color: #555 !important; color: #999 !important; cursor: not-allowed !important;
-            border-color: #333 !important; opacity: 0.7; filter: none !important;
-          }
-          #${CONFIG.SELECTORS.ui.container.substring(
-            1
-          )} button:hover:not(:disabled) { filter: brightness(1.15); }
+        #${CONFIG.SELECTORS.ui.container.substring(1)} {
+          position: fixed; bottom: 10px; right: 10px; z-index: 9999;
+          background: rgba(27, 40, 56, 0.9); color: #c7d5e0; padding: 10px;
+          border-radius: 5px; font-family: 'Motiva Sans', sans-serif; font-size: 12px;
+          border: 1px solid #000; box-shadow: 0 0 10px rgba(0,0,0,0.7);
+          backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+          transition: all 0.3s ease-in-out; width: 250px;
+        }
+        #${CONFIG.SELECTORS.ui.container.substring(1)}.wl-minimized {
+          padding: 5px 10px; height: auto; width: auto; min-width: 150px;
+        }
+        #${CONFIG.SELECTORS.ui.container.substring(
+        1
+      )}.wl-minimized .wl-controls-body {
+          display: none;
+        }
+        #${CONFIG.SELECTORS.ui.container.substring(1)} button {
+          padding: 4px 8px; border-radius: 2px; cursor: pointer; font-size: 11px;
+          margin-right: 5px; border: 1px solid; transition: filter 0.15s ease;
+        }
+        #${CONFIG.SELECTORS.ui.container.substring(
+        1
+      )} button:last-child { margin-right: 0; }
+        #${CONFIG.SELECTORS.ui.container.substring(1)} button:disabled {
+          background-color: #555 !important; color: #999 !important; cursor: not-allowed !important;
+          border-color: #333 !important; opacity: 0.7; filter: none !important;
+        }
+        #${CONFIG.SELECTORS.ui.container.substring(
+        1
+      )} button:hover:not(:disabled) { filter: brightness(1.15); }
 
-          #${CONFIG.SELECTORS.ui.startButton.substring(
-            1
-          )} { background-color: #68932f; color: white; border-color: #3a511b; }
-          #${CONFIG.SELECTORS.ui.pauseButton.substring(
-            1
-          )} { background-color: #4a6b9d; color: white; border-color: #2a3d5e; }
-          #${CONFIG.SELECTORS.ui.stopButton.substring(
-            1
-          )} { background-color: #a33e29; color: white; border-color: #5c2416; }
-          #${CONFIG.SELECTORS.ui.processOnceButton.substring(1)},
-          #${CONFIG.SELECTORS.ui.skipButton.substring(
-            1
-          )} { background-color: #777; color: white; border-color: #444; }
+        #${CONFIG.SELECTORS.ui.startButton.substring(
+        1
+      )} { background-color: #68932f; color: white; border-color: #3a511b; }
+        #${CONFIG.SELECTORS.ui.pauseButton.substring(
+        1
+      )} { background-color: #4a6b9d; color: white; border-color: #2a3d5e; }
+        #${CONFIG.SELECTORS.ui.stopButton.substring(
+        1
+      )} { background-color: #a33e29; color: white; border-color: #5c2416; }
+        #${CONFIG.SELECTORS.ui.processOnceButton.substring(1)},
+        #${CONFIG.SELECTORS.ui.skipButton.substring(
+        1
+      )} { background-color: #777; color: white; border-color: #444; }
 
-          .${CONFIG.SELECTORS.ui.statusElement.substring(
-            1
-          )} { /* Target by class for easier style application */
-            font-size: 11px; min-height: 1.2em; padding: 4px 0; text-align: left;
-            transition: color 0.3s ease, font-weight 0.3s ease; color: #c7d5e0;
-          }
-          .${CONFIG.SELECTORS.ui.statusElement.substring(
-            1
-          )}.wl-status-action { color: #66c0f4 !important; }
-          .${CONFIG.SELECTORS.ui.statusElement.substring(
-            1
-          )}.wl-status-success { color: #a1dd4a !important; }
-          .${CONFIG.SELECTORS.ui.statusElement.substring(
-            1
-          )}.wl-status-skipped { color: #aaa !important; }
-          .${CONFIG.SELECTORS.ui.statusElement.substring(
-            1
-          )}.wl-status-error { color: #ff7a7a !important; font-weight: bold; }
-          .${CONFIG.SELECTORS.ui.statusElement.substring(
-            1
-          )}.wl-status-paused { color: #e4d00a !important; font-style: italic; }
+        .${CONFIG.SELECTORS.ui.statusElement.substring(
+        1
+      )} { /* Target by class for easier style application */
+          font-size: 11px; min-height: 1.2em; padding: 4px 0; text-align: left;
+          transition: color 0.3s ease, font-weight 0.3s ease; color: #c7d5e0;
+        }
+        .${CONFIG.SELECTORS.ui.statusElement.substring(
+        1
+      )}.wl-status-action { color: #66c0f4 !important; }
+        .${CONFIG.SELECTORS.ui.statusElement.substring(
+        1
+      )}.wl-status-success { color: #a1dd4a !important; }
+        .${CONFIG.SELECTORS.ui.statusElement.substring(
+        1
+      )}.wl-status-skipped { color: #aaa !important; }
+        .${CONFIG.SELECTORS.ui.statusElement.substring(
+        1
+      )}.wl-status-error { color: #ff7a7a !important; font-weight: bold; }
+        .${CONFIG.SELECTORS.ui.statusElement.substring(
+        1
+      )}.wl-status-paused { color: #e4d00a !important; font-style: italic; }
 
-          #${CONFIG.SELECTORS.ui.container.substring(1)} label {
-            display: inline-flex; align-items: center; cursor: pointer;
-            font-size: 11px; vertical-align: middle; margin-bottom: 3px;
-          }
-          #${CONFIG.SELECTORS.ui.container.substring(
-            1
-          )} input[type="checkbox"] {
-            margin-right: 4px; vertical-align: middle; cursor: pointer; accent-color: #66c0f4;
-          }
-          #${CONFIG.SELECTORS.ui.versionInfo.substring(1)}.wl-update-available {
-             color: #ffa500 !important; text-decoration: underline; cursor: pointer; font-weight: bold;
-          }
-        `);
+        #${CONFIG.SELECTORS.ui.container.substring(1)} label {
+          display: inline-flex; align-items: center; cursor: pointer;
+          font-size: 11px; vertical-align: middle; margin-bottom: 3px;
+        }
+        #${CONFIG.SELECTORS.ui.container.substring(
+        1
+      )} input[type="checkbox"] {
+          margin-right: 4px; vertical-align: middle; cursor: pointer; accent-color: #66c0f4;
+        }
+        #${CONFIG.SELECTORS.ui.versionInfo.substring(1)}.wl-update-available {
+           color: #ffa500 !important; text-decoration: underline; cursor: pointer; font-weight: bold;
+        }
+      `);
 
       // Add to document
       document.body.appendChild(controlDiv);
@@ -1281,8 +1271,7 @@
 
       if (targetButton) {
         Logger.log(
-          ` -> Found visible & enabled button/link: '${
-            targetButton.innerText?.trim() || targetButton.id || "Start Link"
+          ` -> Found visible & enabled button/link: '${targetButton.innerText?.trim() || targetButton.id || "Start Link"
           }'. Clicking...`,
           1
         );
@@ -1538,8 +1527,7 @@
 
       UI.updateStatusText(`Checking ${gameTitle}... ${queueRemaining}`);
       Logger.log(
-        `Processing: ${gameTitle} ${
-          queueRemaining ? "- " + queueRemaining : ""
+        `Processing: ${gameTitle} ${queueRemaining ? "- " + queueRemaining : ""
         }`,
         1
       );
@@ -1976,8 +1964,7 @@
               CONFIG.TIMING.CHECK_INTERVAL
             );
             Logger.log(
-              `Next check scheduled in ${
-                CONFIG.TIMING.CHECK_INTERVAL / 1000
+              `Next check scheduled in ${CONFIG.TIMING.CHECK_INTERVAL / 1000
               }s.`,
               2
             ); // Verbose
@@ -2275,8 +2262,7 @@
           GM_setValue(CONFIG.STORAGE_KEYS.LAST_VERSION_CHECK, currentTime);
           State.stats.lastVersionCheck = currentTime;
           Logger.log(
-            `Error during version check request: ${
-              error.statusText || "Network Error"
+            `Error during version check request: ${error.statusText || "Network Error"
             }`,
             0
           );
@@ -2576,12 +2562,11 @@
         "i" // Access key 'i' for Ignore/Item Skip
       );
 
-      GM_registerMenuCommand("--- Wishlister Settings ---", () => {}); // Separator
+      GM_registerMenuCommand("--- Wishlister Settings ---", () => { }); // Separator
 
       // Settings toggles with dynamic labels
       GM_registerMenuCommand(
-        `[Wishlister] ${
-          State.settings.autoStartEnabled ? "✅ Disable" : "⬜ Enable"
+        `[Wishlister] ${State.settings.autoStartEnabled ? "✅ Disable" : "⬜ Enable"
         } Auto-Start`,
         () => {
           SettingsManager.toggleSetting(
@@ -2592,8 +2577,7 @@
         }
       );
       GM_registerMenuCommand(
-        `[Wishlister] ${
-          State.settings.autoRestartQueueEnabled ? "✅ Disable" : "⬜ Enable"
+        `[Wishlister] ${State.settings.autoRestartQueueEnabled ? "✅ Disable" : "⬜ Enable"
         } Auto-Restart Queue`,
         () => {
           SettingsManager.toggleSetting(
@@ -2604,8 +2588,7 @@
         }
       );
       GM_registerMenuCommand(
-        `[Wishlister] ${
-          State.settings.requireTradingCards ? "✅ Disable" : "⬜ Enable"
+        `[Wishlister] ${State.settings.requireTradingCards ? "✅ Disable" : "⬜ Enable"
         } Require Trading Cards`,
         () => {
           SettingsManager.toggleSetting(
@@ -2616,8 +2599,7 @@
         }
       );
       GM_registerMenuCommand(
-        `[Wishlister] ${
-          State.settings.skipOwnedGames ? "✅ Disable" : "⬜ Enable"
+        `[Wishlister] ${State.settings.skipOwnedGames ? "✅ Disable" : "⬜ Enable"
         } Skip Owned Games`,
         () => {
           SettingsManager.toggleSetting(
@@ -2628,8 +2610,7 @@
         }
       );
       GM_registerMenuCommand(
-        `[Wishlister] ${
-          State.settings.skipNonGames ? "✅ Disable" : "⬜ Enable"
+        `[Wishlister] ${State.settings.skipNonGames ? "✅ Disable" : "⬜ Enable"
         } Skip Non-Games (DLC, etc.)`,
         () => {
           SettingsManager.toggleSetting(
@@ -2640,8 +2621,7 @@
         }
       );
       GM_registerMenuCommand(
-        `[Wishlister] ${
-          State.settings.uiMinimized ? " R" : "➖ M"
+        `[Wishlister] ${State.settings.uiMinimized ? " R" : "➖ M"
         }estore/Minimize UI Panel`, // Use symbols for state
         () => {
           UI.toggleMinimizeUI(); // UI update handles button text, menu needs re-register
@@ -2650,7 +2630,7 @@
         "m" // Access key 'm' for Minimize/Maximize
       );
 
-      GM_registerMenuCommand("--- Wishlister Info ---", () => {}); // Separator
+      GM_registerMenuCommand("--- Wishlister Info ---", () => { }); // Separator
 
       GM_registerMenuCommand(
         "[Wishlister] Check for Updates Now",

@@ -1,103 +1,206 @@
+<!-- filepath: /home/bitter/dev/Scripts/steam-infinite-wishlister/README.md -->
+
 # Steam Infinite Wishlister v2.0
 
-Advanced Steam Discovery Queue wishlisting with powerful filtering, automation, age gate bypass, and enhanced controls.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Tampermonkey](https://img.shields.io/badge/Userscript-Tampermonkey-brightgreen.svg)](https://www.tampermonkey.net/)
 
-![Steam Logo](https://store.steampowered.com/favicon.ico)
+---
+
+## 🌐 English | 🇧🇷 Português
+
+<details>
+<summary><strong>English</strong></summary>
+
+## Overview
+
+**Steam Infinite Wishlister** is an advanced userscript for automating the Steam Discovery Queue wishlisting process. It features powerful filtering, queue automation, age gate bypass, a modern control panel, and robust compatibility with Steam's ever-changing layout.
+
+---
 
 ## Features
 
-- **Auto-Wishlist**: Adds items from the Steam Discovery Queue to your wishlist based on your criteria.
+- **Auto-Wishlist**: Adds items from the Discovery Queue to your wishlist automatically.
 - **Powerful Filtering**:
-  - ✅ **Require Trading Cards**: Only wishlist items that have Steam Trading Cards.
-  - ✅ **Skip Owned Games**: Automatically skips items already in your Steam library.
-  - ✅ **Skip Non-Games**: Automatically skips DLC, Soundtracks, Demos, Videos, Applications, etc.
-- **Queue Automation**:
-  - Automatically advances to the next item in the queue.
-  - Automatically generates and starts a new queue when the current one finishes (optional).
-- **Age Gate Bypass**: Automatically handles Steam's age verification prompts for mature content.
-- **Enhanced UI Control Panel**:
-  - **Start / Pause / Resume / Stop** controls for the automation loop.
-  - **Manual Controls**: "Process Once" (wishlist/skip current item based on rules) and "Skip Item" buttons for when the loop is paused/stopped.
-  - **Session Counter**: Tracks how many items have been wishlisted in the current browser session.
-  - **Minimize Button**: Collapse the UI panel.
-  - **Detailed Status Display**: Shows current state (Running, Paused, Stopped, Adding, Skipped, Error, Idle...).
-  - **Configuration Checkboxes**: Easily toggle all filtering and automation options directly from the panel.
-  - **Version Display**: Shows the current script version and notifies if an update is available.
-- **Robustness**: Improved selectors and logic for better reliability across different Steam page layouts and scenarios.
-- **Tampermonkey Integration**: Access all controls and settings toggles via the Tampermonkey extension menu.
+  - ✅ Require Trading Cards
+  - ✅ Skip Owned Games
+  - ✅ Skip Non-Games (DLC, Soundtracks, Demos, Videos, Apps, etc.)
+- **Queue Automation**: Advances queue, auto-generates new queue when finished.
+- **Age Gate Bypass**: Handles Steam's age verification automatically.
+- **Enhanced UI Panel**: Floating panel with Start/Pause/Stop, manual controls, session counter, minimize, status, and instant config toggles.
+- **Version Check**: Notifies you if a new version is available.
+- **Robustness**: Works across different Steam layouts and languages.
+- **Tampermonkey Menu Integration**: All controls also available via the extension menu.
+
+---
 
 ## Installation
 
-1. **Install [Tampermonkey](https://www.tampermonkey.net/)** (or a compatible userscript manager like Violentmonkey or Greasemonkey) for your browser (Chrome, Firefox, Edge, Opera, etc.).
-2. **[Click here to install the script](https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/SteamInfiniteWishlister.user.js)** (Or copy the code from the `.user.js` file and paste it into a new Tampermonkey script).
-3. Visit the [Steam Store](https://store.steampowered.com/), especially the [Discovery Queue](https://store.steampowered.com/explore/) or any game page (`/app/...`), to see the script's UI panel.
+1. Install [Tampermonkey](https://www.tampermonkey.net/) (or Violentmonkey/Greasemonkey) for your browser.
+2. [Install the script](https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/SteamInfiniteWishlister.user.js) (or copy the code from `.user.js` to a new script).
+3. Visit the [Steam Store](https://store.steampowered.com/) or [Discovery Queue](https://store.steampowered.com/explore/) to see the UI panel.
+
+---
 
 ## Usage
 
-- **Control Panel**: A floating panel appears in the bottom-right corner on supported Steam pages.
-  - **Start/Resume**: Begins or resumes the automation loop.
-  - **Pause**: Pauses the automation loop. The current item processing will finish first.
-  - **Stop**: Halts the script and disables Auto-Start/Auto-Restart by default (can be stopped while keeping settings via Tampermonkey Menu).
-  - **Process Once**: Manually evaluates the _current_ item against your rules (wishlist/skip) without starting the loop (requires loop to be Paused/Stopped).
-  - **Skip Item**: Manually advances to the next item without evaluation (requires loop to be Paused/Stopped).
-  - **Checkboxes (Options)**: Toggle filters (Require Cards, Skip Owned, Skip Non-Games) and automation (Auto-Start, Auto-Restart) on the fly. Settings are saved instantly.
-  - **(X Added)**: Shows items wishlisted this session.
-  - **Status:**: Displays the script's current activity.
-  - **▬ / □ Button**: Minimizes or restores the control panel.
-  - **vX.X**: Shows script version, may indicate if an update is available.
-- **Tampermonkey Menu**: Click the Tampermonkey icon in your browser toolbar. You'll find commands to Start/Pause/Stop the script and toggle all settings. This is useful if the UI panel conflicts with something or if you prefer menu access.
+- The control panel appears in the bottom-right on supported Steam pages.
+- **Start/Resume**: Begin or resume automation.
+- **Pause**: Pauses after current item.
+- **Stop**: Halts automation and disables auto features.
+- **Process Once**: Manually process the current item.
+- **Skip Item**: Manually skip the current item.
+- **Checkboxes**: Toggle filters and automation instantly.
+- **Session Counter**: Shows how many items were wishlisted this session.
+- **Status**: Displays current activity.
+- **Minimize**: Collapse/expand the panel.
+- **Version**: Shows current version and update status.
+- **Tampermonkey Menu**: All controls also available via the extension icon.
 
-## How It Works
-
-1. The script activates on supported Steam store and community pages.
-2. It automatically attempts to bypass **age verification** gates using cookies and script execution methods.
-3. When on a Discovery Queue page (or app page within a queue context):
-   - If **Auto-Start** is enabled, the loop begins.
-   - The script checks the current item.
-   - **Filtering**: It checks if the item should be skipped based on your settings (Owned? Non-Game? Missing Cards?).
-   - It checks if the item is already on your wishlist.
-   - If the item passes all filters and isn't already wishlisted, it clicks the **Add to Wishlist** button and increments the session counter.
-   - If the loop is running, it automatically clicks **Next in Queue** (or ignores, or submits the form if necessary).
-   - If the queue finishes and **Auto-Restart** is enabled, it attempts to generate and start a new queue.
+---
 
 ## Configuration
 
-All configuration is done via the checkboxes in the UI Panel or the toggles in the Tampermonkey Menu:
-
-- **Automation**: `Auto-Start`, `Auto-Restart Queue`
-- **Filtering**: `Require Cards`, `Skip Owned`, `Skip Non-Games`
+All options are available in the UI panel and Tampermonkey menu:
+- **Automation**: Auto-Start, Auto-Restart Queue
+- **Filtering**: Require Cards, Skip Owned, Skip Non-Games
 - **UI**: Minimize toggle
 
-Settings are saved automatically when changed.
+Settings are saved automatically.
+
+---
 
 ## Supported Pages
 
-The script is designed to run on:
-
 - Steam game/app pages (`store.steampowered.com/app/*`)
-- Steam Discovery Queue pages (`store.steampowered.com/explore*`)
-- Steam Curator pages (`store.steampowered.com/curator/*`) (for navigating through lists that might contain queue items)
-- Steam Community pages (`steamcommunity.com/*`) (primarily for the age gate bypass functionality)
+- Discovery Queue (`store.steampowered.com/explore*`)
+- Curator pages (`store.steampowered.com/curator/*`)
+- Steam Community (`steamcommunity.com/*`) (for age gate bypass)
+
+---
 
 ## Permissions
 
-This script requires the following Tampermonkey permissions (`@grant` directives):
+This script requires the following Tampermonkey permissions:
+- `GM_addStyle`: Inject CSS for the UI panel.
+- `GM_registerMenuCommand`: Add controls to the Tampermonkey menu.
+- `GM_setValue` / `GM_getValue`: Save/load your settings.
+- `GM_xmlhttpRequest`: Check for script updates.
 
-- `GM_addStyle`: To inject CSS for the UI panel.
-- `GM_registerMenuCommand`: To add controls to the Tampermonkey menu.
-- `GM_setValue`: To save your settings.
-- `GM_getValue`: To load your settings.
-- `GM_xmlhttpRequest`: To check for script updates.
+---
 
 ## License
 
 [MIT License](./LICENSE)
 
+---
+
 ## Credits
 
 - Script by [bernardopg](https://github.com/bernardopg)
-- Inspired by the Steam community, discovery queue automation needs, and card collectors!
+- Inspired by the Steam community and card collectors!
 
 ---
 
-**Note:** This script interacts with the Steam website programmatically. While designed to mimic user actions, use it responsibly. It is not affiliated with or endorsed by Valve or Steam. Use at your own risk. Changes to the Steam website may break script functionality.
+**Disclaimer:** This script interacts with the Steam website programmatically. Use responsibly. Not affiliated with Valve/Steam. Use at your own risk. Steam updates may break functionality.
+
+</details>
+
+---
+
+<details open>
+<summary><strong>Português (Brasil)</strong></summary>
+
+## Visão Geral
+
+**Steam Infinite Wishlister** é um userscript avançado para automatizar o processo de adicionar jogos à sua lista de desejos na Discovery Queue da Steam. Possui filtros poderosos, automação de fila, bypass de verificação de idade, painel de controle moderno e alta compatibilidade com diferentes layouts da Steam.
+
+---
+
+## Funcionalidades
+
+- **Auto-Wishlist**: Adiciona itens da Discovery Queue à sua lista de desejos automaticamente.
+- **Filtros Avançados**:
+  - ✅ Exigir Cartas Colecionáveis
+  - ✅ Pular Jogos Já Possuídos
+  - ✅ Pular Não-Jogos (DLC, Trilhas Sonoras, Demos, Vídeos, Apps, etc.)
+- **Automação de Fila**: Avança a fila e gera nova automaticamente ao terminar.
+- **Bypass de Idade**: Lida automaticamente com a verificação de idade da Steam.
+- **Painel de Controle**: Painel flutuante com Iniciar/Pausar/Parar, controles manuais, contador de sessão, minimizar, status e opções instantâneas.
+- **Verificação de Versão**: Notifica se há nova versão disponível.
+- **Robustez**: Funciona em diferentes layouts e idiomas da Steam.
+- **Menu Tampermonkey**: Todos os controles também disponíveis pelo menu da extensão.
+
+---
+
+## Instalação
+
+1. Instale o [Tampermonkey](https://www.tampermonkey.net/) (ou Violentmonkey/Greasemonkey) no seu navegador.
+2. [Instale o script](https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/SteamInfiniteWishlister.user.js) (ou copie o código do `.user.js` para um novo script).
+3. Acesse a [Steam Store](https://store.steampowered.com/) ou a [Discovery Queue](https://store.steampowered.com/explore/) para ver o painel.
+
+---
+
+## Como Usar
+
+- O painel aparece no canto inferior direito das páginas suportadas.
+- **Iniciar/Retomar**: Começa ou retoma a automação.
+- **Pausar**: Pausa após o item atual.
+- **Parar**: Interrompe a automação e desativa recursos automáticos.
+- **Processar Uma Vez**: Processa manualmente o item atual.
+- **Pular Item**: Pula manualmente o item atual.
+- **Caixas de Opção**: Ative/desative filtros e automação instantaneamente.
+- **Contador de Sessão**: Mostra quantos itens foram adicionados nesta sessão.
+- **Status**: Exibe a atividade atual.
+- **Minimizar**: Minimiza/expande o painel.
+- **Versão**: Mostra a versão atual e status de atualização.
+- **Menu Tampermonkey**: Todos os controles também disponíveis pelo ícone da extensão.
+
+---
+
+## Configuração
+
+Todas as opções estão disponíveis no painel e no menu do Tampermonkey:
+- **Automação**: Auto-Iniciar, Auto-Reiniciar Fila
+- **Filtros**: Exigir Cartas, Pular Possuídos, Pular Não-Jogos
+- **UI**: Minimizar painel
+
+As configurações são salvas automaticamente.
+
+---
+
+## Páginas Suportadas
+
+- Páginas de jogos/apps da Steam (`store.steampowered.com/app/*`)
+- Discovery Queue (`store.steampowered.com/explore*`)
+- Curator (`store.steampowered.com/curator/*`)
+- Steam Community (`steamcommunity.com/*`) (para bypass de idade)
+
+---
+
+## Permissões
+
+Este script requer as seguintes permissões do Tampermonkey:
+- `GM_addStyle`: Injeta CSS do painel.
+- `GM_registerMenuCommand`: Adiciona controles ao menu do Tampermonkey.
+- `GM_setValue` / `GM_getValue`: Salva/carrega suas configurações.
+- `GM_xmlhttpRequest`: Verifica atualizações do script.
+
+---
+
+## Licença
+
+[MIT License](./LICENSE)
+
+---
+
+## Créditos
+
+- Script por [bernardopg](https://github.com/bernardopg)
+- Inspirado pela comunidade Steam e colecionadores de cartas!
+
+---
+
+**Aviso:** Este script interage programaticamente com o site da Steam. Use com responsabilidade. Não é afiliado à Valve/Steam. Use por sua conta e risco. Mudanças na Steam podem quebrar o funcionamento.
+
+</details>
