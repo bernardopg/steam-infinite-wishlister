@@ -13,6 +13,10 @@ Transforme sua experiência na Steam com o **Steam Infinite Wishlister**, a ferr
 <details open>
 <summary><strong>Português (Brasil)</strong></summary>
 
+## 📚 Documentação
+
+- **[Guia de Arquitetura](ARCHITECTURE.md)** - Documentação completa da estrutura modular, fluxos de execução e guia de manutenção do código
+
 ## Por que usar o Steam Infinite Wishlister? 💡
 
 - **Economize Tempo**: Automatize a adição de jogos à sua lista de desejos com base em critérios personalizados.

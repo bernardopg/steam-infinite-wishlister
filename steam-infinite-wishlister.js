@@ -27,69 +27,54 @@
   const CONFIG = {
     // Timing configuration (all values in milliseconds)
     TIMING: {
-      CHECK_INTERVAL: 3500, // How often to check the current page when running the loop
-      ACTION_DELAY: 1800, // Delay after performing a major action (like adding to wishlist)
-      ADVANCE_DELAY: 600, // Delay before advancing to next item (1/3 of ACTION_DELAY)
-      PROCESSING_RELEASE_DELAY: 900, // Delay before releasing processing lock (1/2 of ACTION_DELAY)
-      QUEUE_GENERATION_DELAY: 1500, // Delay after attempting to generate a new queue
-      QUEUE_LOCK_RELEASE_DELAY: 2000, // Delay before releasing queue generation lock (unused currently)
-      INITIAL_START_DELAY: 1500, // Delay before starting the loop on page load
-      WISHLIST_CONFIRM_TIMEOUT: 5000, // Timeout for confirming wishlist action success (used by polling)
-      MINI_DELAY: 100, // Very small delay for minor operations
-      VERSION_CHECK_INTERVAL: 86400000, // Check for updates once per day (24h)
+      CHECK_INTERVAL: 3500,
+      ACTION_DELAY: 1800,
+      ADVANCE_DELAY: 600,
+      PROCESSING_RELEASE_DELAY: 900,
+      QUEUE_GENERATION_DELAY: 1500,
+      INITIAL_START_DELAY: 1500,
+      WISHLIST_CONFIRM_TIMEOUT: 5000,
+      MINI_DELAY: 100,
+      VERSION_CHECK_INTERVAL: 86400000,
     },
 
-    // DOM Selectors - organized by functional area
+    // DOM Selectors - otimizados e consolidados
     SELECTORS: {
-      // Wishlist related selectors
       wishlist: {
-        area: "#add_to_wishlist_area, .queue_wishlist_ctn, .game_area_purchase_game, .purchase_game_wrapper, .game_area_purchase, .queue_btn_wishlist, .app_page_btn_area, .queue_control_button", // Expanded container for wishlist button/status (app page, explore page, purchase areas)
+        area: "#add_to_wishlist_area, .queue_wishlist_ctn, .game_area_purchase_game, .queue_btn_wishlist",
         addButton:
-          ".add_to_wishlist .btn_addtocart .btnv6_blue_hoverfade, .queue_wishlist_button .btnv6_blue_hoverfade, .btn_addtocart .btn_medium, .game_area_purchase_game .btn_addtocart a, .purchase_game_wrapper .btn_addtocart a, .game_area_purchase .btn_addtocart a, .btnv6_lightblue_blue, .btn_medium[href*='AddToWishlist'], a[href*='wishlist/add'], .btn_addtocart a, .btnv6_blue_blue, .btn_small[href*='AddToWishlist'], .smallbtn[href*='wishlist/add'], .game_area_purchase_section a[href*='wishlist'], .queue_btn_wishlist .btnv6_blue_hoverfade, .queue_control_button .btnv6_blue_hoverfade, [data-panel='wishlist'] .btnv6_blue_hoverfade, .btn_queue_action, .add_to_wishlist_button", // Further expanded selectors for app page, explore page, purchase areas, and more generic wishlist links
+          ".add_to_wishlist .btn_addtocart, .queue_wishlist_button .btnv6_blue_hoverfade, [href*='AddToWishlist']",
         successIndicator:
-          ".add_to_wishlist_area_success, .queue_btn_active, .wishlist_added, .wishlist_added_ctn, .queue_btn_wishlist.queue_btn_active, .wishlist_added_text, .btn_addtocart_already, .already_in_wishlist, .queue_wishlist_ctn.queue_btn_active, [data-panel='wishlist'].queue_btn_active", // Success text (app page), active class (explore page), or added class
+          ".add_to_wishlist_area_success, .queue_btn_active, .wishlist_added",
       },
-
-      // Game information selectors
       gameInfo: {
         tradingCardsIndicator:
-          '.game_area_details_specs a[href*="/tradingcards/"], a.trading_card_details_link[href*="/tradingcards/"], .game_area_details_specs a[href*="tradingcards"], .badge_row_inner a[href*="cards"], .communitylink_achivement_plusmore', // Seletores expandidos para trading cards
-        title: ".apphub_AppName", // Main title on app page
-        queueRemainingText: ".queue_sub_text", // Text like "X items remaining in queue"
-        inLibraryIndicator: ".game_area_already_owned", // "Already in your library" notice (app page)
-        dlcIndicator: ".game_area_dlc_bubble", // Bubble indicating DLC (app page)
-        appTypeElement: ".game_details .details_block", // Block containing text like "Downloadable Content" (app page)
+          'a[href*="/tradingcards/"], .trading_card_details_link',
+        title: ".apphub_AppName, .queue_item_title",
+        queueRemainingText: ".queue_sub_text",
+        inLibraryIndicator: ".game_area_already_owned",
+        dlcIndicator: ".game_area_dlc_bubble",
+        appTypeElement: ".game_details .details_block",
       },
-
-      // Queue navigation selectors
       queueNav: {
-        nextButton:
-          ".btn_next_in_queue_trigger, .btn_next_in_queue .btnv6_lightblue_blue", // Next button (app page, explore page)
-        nextForm: "#next_in_queue_form", // Hidden form sometimes used for navigation
-        ignoreButtonContainer: "#ignoreBtn", // Container for ignore button (app page)
-        ignoreButtonInContainer: ".queue_btn_ignore", // Ignore button itself (app page, explore page)
+        nextButton: ".btn_next_in_queue_trigger, .btn_next_in_queue",
+        nextForm: "#next_in_queue_form",
+        ignoreButton: ".queue_btn_ignore",
+        ignoreButtonContainer: "#queueActionsCtn",
+        ignoreButtonInContainer: ".queue_control_button.queue_btn_ignore",
       },
-
-      // Queue status and management selectors
       queueStatus: {
-        container: "#discovery_queue_ctn, #discovery_queue", // Main queue container (app page, explore page)
-        finishedIndicator: ".discover_queue_empty", // Element shown when queue is finished
-        emptyContainer: ".discover_queue_empty", // Alias for finishedIndicator, used for clarity
-        // Selectors for starting a queue
-        startLink:
-          ".discovery_queue_start_link, #discovery_queue_start_link, .discovery_queue_winter_sale_cards_header a[href*='discovery_queue'], .discovery_queue_global_header a[href*='discoveryqueue']", // Various links to start a queue
-        // Selectors for starting *another* queue when one finished
+        container: "#discovery_queue_ctn, #discovery_queue",
+        finishedIndicator: ".discover_queue_empty",
+        emptyContainer: ".discover_queue_empty",
+        startLink: ".discovery_queue_start_link, [href*='discoveryqueue']",
         startAnotherButton:
-          "#refresh_queue_btn, .discover_queue_empty_refresh_btn .btnv6_lightblue_blue, .discover_queue_empty a[href*='discoveryqueue'], .begin_exploring", // Various buttons/links to start a new queue after finishing
+          "#refresh_queue_btn, .discover_queue_empty_refresh_btn, #refresh_queue_btn > span, .btnv6_lightblue_blue.btn_medium",
       },
-
-      // Age gate selectors
       ageGate: {
-        storeContainer: "#app_agegate", // Container for age gate on store pages
-        communityTextContainer: ".agegate_text_container", // Container for age gate text on community pages
+        storeContainer: "#app_agegate",
+        communityTextContainer: ".agegate_text_container",
       },
-
-      // UI selectors
       ui: {
         container: "#wishlist-looper-controls",
         statusElement: "#wl-status",
@@ -122,7 +107,7 @@
       LAST_VERSION_CHECK: "wishlistLooperLastVersionCheck",
       // Example version check URL (replace with your actual source if hosting)
       VERSION_CHECK_URL:
-        "https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/version.json",
+        "https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/version.json",
     },
 
     // App constants
@@ -132,7 +117,7 @@
     get VERSION_CHECK_URL() {
       return GM_getValue(
         CONFIG.STORAGE_KEYS.VERSION_CHECK_URL,
-        "https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/version.json"
+        "https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/version.json"
       );
     },
   };
@@ -147,6 +132,7 @@
       isProcessing: false, // Whether we're currently processing an item
       manualActionInProgress: false, // Whether a manual action is in progress
       failedQueueRestarts: 0, // Counter for failed queue restart attempts
+      lastCheck: null, // Timestamp of last check for rate limiting
     },
 
     settings: {
@@ -571,123 +557,91 @@
         versionInfo: controlDiv.querySelector(CONFIG.SELECTORS.ui.versionInfo),
       };
 
-      // Add event listeners for collapsible sections with passive option
+      // Add event listeners for collapsible sections
       const toggleOptionsBtn = controlDiv.querySelector("#wl-toggle-options");
       const toggleLogBtn = controlDiv.querySelector("#wl-toggle-log");
       if (toggleOptionsBtn) {
-        toggleOptionsBtn.addEventListener(
-          "click",
-          () => {
-            const content = controlDiv.querySelector("#wl-options-content");
-            if (content) {
-              if (content.style.display === "none") {
-                content.style.display = "block";
-                toggleOptionsBtn.textContent = "−";
-              } else {
-                content.style.display = "none";
-                toggleOptionsBtn.textContent = "+";
-              }
+        toggleOptionsBtn.addEventListener("click", () => {
+          const content = controlDiv.querySelector("#wl-options-content");
+          if (content) {
+            if (content.style.display === "none") {
+              content.style.display = "block";
+              toggleOptionsBtn.textContent = "−";
+            } else {
+              content.style.display = "none";
+              toggleOptionsBtn.textContent = "+";
             }
-          },
-          { passive: true }
-        );
+          }
+        });
       }
       if (toggleLogBtn) {
-        toggleLogBtn.addEventListener(
-          "click",
-          () => {
-            const content = controlDiv.querySelector("#wl-log-content");
-            if (content) {
-              if (content.style.display === "none") {
-                content.style.display = "block";
-                toggleLogBtn.textContent = "−";
-              } else {
-                content.style.display = "none";
-                toggleLogBtn.textContent = "+";
-              }
+        toggleLogBtn.addEventListener("click", () => {
+          const content = controlDiv.querySelector("#wl-log-content");
+          if (content) {
+            if (content.style.display === "none") {
+              content.style.display = "block";
+              toggleLogBtn.textContent = "−";
+            } else {
+              content.style.display = "none";
+              toggleLogBtn.textContent = "+";
             }
-          },
-          { passive: true }
-        );
+          }
+        });
       }
 
-      // Add event listeners with passive option
+      // Add event listeners
       State.ui.elements.startBtn.addEventListener(
         "click",
-        LoopController.startLoop,
-        { passive: true }
+        LoopController.startLoop
       );
       State.ui.elements.pauseBtn.addEventListener(
         "click",
-        LoopController.pauseLoop,
-        { passive: true }
+        LoopController.pauseLoop
       );
       State.ui.elements.stopBtn.addEventListener(
         "click",
-        () => LoopController.stopLoop(false), // Stop and disable auto features
-        { passive: true }
+        () => LoopController.stopLoop(false) // Stop and disable auto features
       );
       State.ui.elements.processOnce.addEventListener(
         "click",
-        QueueProcessor.processOnce,
-        { passive: true }
+        QueueProcessor.processOnce
       );
-      State.ui.elements.skip.addEventListener(
-        "click",
-        QueueProcessor.skipItem,
-        { passive: true }
-      );
+      State.ui.elements.skip.addEventListener("click", QueueProcessor.skipItem);
       State.ui.elements.minimizeBtn.addEventListener(
         "click",
-        this.toggleMinimizeUI,
-        { passive: true }
+        this.toggleMinimizeUI
       );
 
-      // Settings listeners using SettingsManager with passive option
-      State.ui.elements.autoStartCheckbox.addEventListener(
-        "change",
-        (e) =>
-          SettingsManager.updateSetting(
-            CONFIG.STORAGE_KEYS.AUTO_START,
-            e.target.checked
-          ),
-        { passive: true }
+      // Settings listeners using SettingsManager
+      State.ui.elements.autoStartCheckbox.addEventListener("change", (e) =>
+        SettingsManager.updateSetting(
+          CONFIG.STORAGE_KEYS.AUTO_START,
+          e.target.checked
+        )
       );
-      State.ui.elements.autoRestartCheckbox.addEventListener(
-        "change",
-        (e) =>
-          SettingsManager.updateSetting(
-            CONFIG.STORAGE_KEYS.AUTO_RESTART_QUEUE,
-            e.target.checked
-          ),
-        { passive: true }
+      State.ui.elements.autoRestartCheckbox.addEventListener("change", (e) =>
+        SettingsManager.updateSetting(
+          CONFIG.STORAGE_KEYS.AUTO_RESTART_QUEUE,
+          e.target.checked
+        )
       );
-      State.ui.elements.requireCardsCheckbox.addEventListener(
-        "change",
-        (e) =>
-          SettingsManager.updateSetting(
-            CONFIG.STORAGE_KEYS.REQUIRE_CARDS,
-            e.target.checked
-          ),
-        { passive: true }
+      State.ui.elements.requireCardsCheckbox.addEventListener("change", (e) =>
+        SettingsManager.updateSetting(
+          CONFIG.STORAGE_KEYS.REQUIRE_CARDS,
+          e.target.checked
+        )
       );
-      State.ui.elements.skipOwnedCheckbox.addEventListener(
-        "change",
-        (e) =>
-          SettingsManager.updateSetting(
-            CONFIG.STORAGE_KEYS.SKIP_OWNED,
-            e.target.checked
-          ),
-        { passive: true }
+      State.ui.elements.skipOwnedCheckbox.addEventListener("change", (e) =>
+        SettingsManager.updateSetting(
+          CONFIG.STORAGE_KEYS.SKIP_OWNED,
+          e.target.checked
+        )
       );
-      State.ui.elements.skipNonGamesCheckbox.addEventListener(
-        "change",
-        (e) =>
-          SettingsManager.updateSetting(
-            CONFIG.STORAGE_KEYS.SKIP_NON_GAMES,
-            e.target.checked
-          ),
-        { passive: true }
+      State.ui.elements.skipNonGamesCheckbox.addEventListener("change", (e) =>
+        SettingsManager.updateSetting(
+          CONFIG.STORAGE_KEYS.SKIP_NON_GAMES,
+          e.target.checked
+        )
       );
 
       // Update UI to match current state
@@ -1024,8 +978,12 @@
         // If no gate initially
         window.addEventListener("DOMContentLoaded", checkAndReload, {
           once: true,
+          passive: true,
         });
-        window.addEventListener("load", checkAndReload, { once: true }); // Backup check on full load
+        window.addEventListener("load", checkAndReload, {
+          once: true,
+          passive: true,
+        }); // Backup check on full load
       }
     },
 
@@ -1068,8 +1026,12 @@
         // If no gate initially
         window.addEventListener("DOMContentLoaded", checkAndProceed, {
           once: true,
+          passive: true,
         });
-        window.addEventListener("load", checkAndProceed, { once: true });
+        window.addEventListener("load", checkAndProceed, {
+          once: true,
+          passive: true,
+        });
       }
     },
 
@@ -1187,78 +1149,171 @@
   };
 
   // ====================================
-  // Module: Game Info Utilities
+  // Module: DOM Cache
   // ====================================
-  const GameInfoUtils = {
+  const DOMCache = {
+    elements: new Map(),
+    selectors: new Map(),
+
     /**
-     * Get the app type from various indicators on the page.
-     * @returns {string} The determined app type (Game, DLC, Soundtrack, Demo, Application, Video, Mod, Unknown)
+     * Cache DOM elements to improve performance
+     * @param {string} key - Cache key
+     * @param {string} selector - CSS selector
+     * @returns {Element|null} Cached element
      */
-    getAppType: function () {
-      // 1. Check DLC bubble first (most reliable for DLC on app page)
-      const dlcIndicator = document.querySelector(
-        CONFIG.SELECTORS.gameInfo.dlcIndicator
-      );
-      if (dlcIndicator?.offsetParent) return "DLC";
-
-      // 2. Check details block text content (app page)
-      const appTypeBlock = document.querySelector(
-        CONFIG.SELECTORS.gameInfo.appTypeElement
-      );
-      if (appTypeBlock) {
-        const detailText = appTypeBlock.textContent?.trim().toUpperCase() || "";
-        if (detailText.includes("DOWNLOADABLE CONTENT")) return "DLC";
-        if (detailText.includes("SOUNDTRACK")) return "Soundtrack";
-        if (detailText.includes("DEMO")) return "Demo";
-        if (detailText.includes("APPLICATION")) return "Application";
-        if (detailText.includes("VIDEO") || detailText.includes("MOVIE"))
-          return "Video";
-        if (detailText.includes("MOD")) return "Mod";
-      }
-
-      // 3. Check breadcrumbs for clues (e.g., "Software", "Videos")
-      const breadcrumbs = document.querySelectorAll(
-        ".breadcrumbs .breadcrumb a, .game_title_area .blockbg a"
-      );
-      if (breadcrumbs.length > 0) {
-        for (const crumb of breadcrumbs) {
-          const crumbText = crumb.textContent?.trim().toUpperCase() || "";
-          if (crumbText.includes("SOFTWARE")) return "Application";
-          if (crumbText.includes("VIDEOS")) return "Video";
+    get: function (key, selector) {
+      if (this.elements.has(key)) {
+        const element = this.elements.get(key);
+        if (element && document.contains(element)) {
+          return element;
         }
       }
 
-      // 4. Check for specific demo notice elements
-      const demoNotice = document.querySelector(
-        ".demo_notice, .game_area_purchase_game.demo_above_purchase"
-      );
-      if (demoNotice?.offsetParent) return "Demo";
+      const element = document.querySelector(selector);
+      if (element) {
+        this.elements.set(key, element);
+      }
+      return element;
+    },
 
-      // 5. Check game title itself for keywords (less reliable, but a fallback)
-      const gameTitleElement = document.querySelector(
-        CONFIG.SELECTORS.gameInfo.title
-      );
-      const titleText =
-        gameTitleElement?.textContent?.trim().toUpperCase() || "";
-      if (titleText.includes("SOUNDTRACK")) return "Soundtrack";
-      if (titleText.includes("ARTBOOK")) return "Artbook";
-      if (titleText.includes("DEMO")) return "Demo";
-      // Add other keywords if needed (e.g., "Beta", "Playtest")
+    /**
+     * Clear cache for specific key or all
+     * @param {string} key - Optional key to clear
+     */
+    clear: function (key) {
+      if (key) {
+        this.elements.delete(key);
+      } else {
+        this.elements.clear();
+      }
+    },
 
-      // If none of the above match, assume it's a Game
+    /**
+     * Cache multiple selectors at once
+     * @param {Object} selectors - Object with key: selector pairs
+     */
+    cacheSelectors: function (selectors) {
+      Object.entries(selectors).forEach(([key, selector]) => {
+        this.get(key, selector);
+      });
+    },
+  };
+
+  // ====================================
+  // Module: Game Info Utilities
+  // ====================================
+  const GameInfoUtils = {
+    // Cache para tipos de aplicativos já detectados
+    appTypeCache: new Map(),
+
+    /**
+     * Get the app type from various indicators on the page.
+     * @returns {string} The determined app type
+     */
+    getAppType: function () {
+      const currentUrl = window.location.href;
+
+      // Usar cache se já foi detectado
+      if (this.appTypeCache.has(currentUrl)) {
+        return this.appTypeCache.get(currentUrl);
+      }
+
+      const checks = [
+        // 1. DLC bubble
+        () =>
+          DOMCache.get("dlcIndicator", CONFIG.SELECTORS.gameInfo.dlcIndicator)
+            ?.offsetParent
+            ? "DLC"
+            : null,
+
+        // 2. Details block
+        () => {
+          const appTypeBlock = DOMCache.get(
+            "appTypeBlock",
+            CONFIG.SELECTORS.gameInfo.appTypeElement
+          );
+          if (!appTypeBlock) return null;
+
+          const text = appTypeBlock.textContent?.trim().toUpperCase() || "";
+          const typeMap = {
+            "DOWNLOADABLE CONTENT": "DLC",
+            SOUNDTRACK: "Soundtrack",
+            DEMO: "Demo",
+            APPLICATION: "Application",
+            VIDEO: "Video",
+            MOVIE: "Video",
+            MOD: "Mod",
+          };
+
+          return (
+            Object.entries(typeMap).find(([key]) => text.includes(key))?.[1] ||
+            null
+          );
+        },
+
+        // 3. Breadcrumbs
+        () => {
+          const breadcrumbs = document.querySelectorAll(
+            ".breadcrumbs .breadcrumb a, .game_title_area .blockbg a"
+          );
+          for (const crumb of breadcrumbs) {
+            const text = crumb.textContent?.trim().toUpperCase();
+            if (text?.includes("SOFTWARE")) return "Application";
+            if (text?.includes("VIDEOS")) return "Video";
+          }
+          return null;
+        },
+
+        // 4. Demo notice
+        () =>
+          DOMCache.get(
+            "demoNotice",
+            ".demo_notice, .game_area_purchase_game.demo_above_purchase"
+          )?.offsetParent
+            ? "Demo"
+            : null,
+
+        // 5. Title keywords
+        () => {
+          const titleElement = DOMCache.get(
+            "gameTitle",
+            CONFIG.SELECTORS.gameInfo.title
+          );
+          const title = titleElement?.textContent?.trim().toUpperCase() || "";
+          const keywords = [
+            "SOUNDTRACK",
+            "ARTBOOK",
+            "DEMO",
+            "BETA",
+            "PLAYTEST",
+          ];
+          return keywords.find((keyword) => title.includes(keyword)) || null;
+        },
+      ];
+
+      // Executar checks em ordem até encontrar um match
+      for (const check of checks) {
+        const result = check();
+        if (result) {
+          this.appTypeCache.set(currentUrl, result);
+          return result;
+        }
+      }
+
+      // Cache resultado padrão
+      this.appTypeCache.set(currentUrl, "Game");
       return "Game";
     },
 
     /**
-     * Checks if the item is considered a "Non-Game" based on settings and type detection.
-     * @returns {string | null} Reason string if it should be skipped as non-game, or null otherwise.
+     * Checks if the item should be skipped as non-game
+     * @returns {string|null} Reason string or null
      */
     checkIfNonGame: function () {
       if (!State.settings.skipNonGames) return null;
 
       const appType = this.getAppType();
-      // Define the list of types to skip when the setting is enabled
-      const nonGameTypesToSkip = [
+      const skipTypes = [
         "DLC",
         "Soundtrack",
         "Demo",
@@ -1268,10 +1323,16 @@
         "Artbook",
       ];
 
-      if (nonGameTypesToSkip.includes(appType))
-        return `Skipped as non-game type: ${appType}`;
+      return skipTypes.includes(appType)
+        ? `Skipped as non-game type: ${appType}`
+        : null;
+    },
 
-      return null;
+    /**
+     * Clear app type cache
+     */
+    clearCache: function () {
+      this.appTypeCache.clear();
     },
   };
 
@@ -1398,93 +1459,127 @@
       UI.updateStatusText("Generating new queue...", "action");
       let generated = false;
 
-      // Combine selectors for various start/refresh buttons/links
-      const startRefreshSelectors = `${CONFIG.SELECTORS.queueStatus.startAnotherButton}, ${CONFIG.SELECTORS.queueStatus.startLink}`;
-      const buttons = document.querySelectorAll(startRefreshSelectors);
+      // Seletores priorizados por especificidade
+      const selectors = [
+        "#refresh_queue_btn > span",  // Span dentro do botão (mais específico)
+        "#refresh_queue_btn",          // O botão em si
+        "#discovery_queue_start_link", // Link de início por ID
+        ".discover_queue_empty_refresh_btn",
+        ".btnv6_lightblue_blue.btn_medium",
+        ".discovery_queue_start_link", // Link de início por classe
+        "[href*='discoveryqueue']"
+      ];
 
-      // Find the first visible and clickable button/link
       let targetButton = null;
-      for (const btn of buttons) {
-        // Check visibility (offsetParent) and also check if it's not disabled (common for buttons)
-        if (btn.offsetParent && !btn.disabled) {
-          targetButton = btn;
+      for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (element && element.offsetParent && !element.disabled) {
+          targetButton = element;
+          Logger.log(` -> Found button with selector: ${selector}`, 1);
           break;
         }
       }
 
       if (targetButton) {
-        Logger.log(
-          ` -> Found visible & enabled button/link: '${
-            targetButton.innerText?.trim() || targetButton.id || "Start Link"
-          }'. Clicking...`,
-          1
-        );
-        targetButton.click();
-        generated = true;
-      } else {
-        // Try Steam's JS object as a fallback if no suitable button found
-        Logger.log(
-          " -> No visible/enabled button found. Trying DiscoveryQueue.GenerateNewQueue()...",
-          1
-        );
+        Logger.log(` -> Clicking button: "${targetButton.innerText?.trim() || targetButton.id}"`, 1);
         try {
-          // Check existence carefully
-          if (
-            typeof window.DiscoveryQueue === "object" &&
-            window.DiscoveryQueue !== null &&
-            typeof window.DiscoveryQueue.GenerateNewQueue === "function"
-          ) {
+          targetButton.click();
+          generated = true;
+          Logger.log(" -> Click executed successfully", 1);
+        } catch (e) {
+          Logger.log(` -> Click error: ${e.message}`, 0);
+        }
+      } else {
+        // Fallback: Steam JS object
+        Logger.log(" -> No button found, trying DiscoveryQueue.GenerateNewQueue()...", 1);
+        try {
+          if (typeof window.DiscoveryQueue?.GenerateNewQueue === "function") {
             window.DiscoveryQueue.GenerateNewQueue();
             generated = true;
-            Logger.log(
-              " -> Called DiscoveryQueue.GenerateNewQueue() successfully.",
-              1
-            );
+            Logger.log(" -> Called DiscoveryQueue.GenerateNewQueue() successfully", 1);
           } else {
-            Logger.log(
-              " -> DiscoveryQueue.GenerateNewQueue() not available or not a function.",
-              1
-            );
+            Logger.log(" -> DiscoveryQueue.GenerateNewQueue() not available", 1);
           }
         } catch (e) {
-          Logger.log(` -> Error calling DiscoveryQueue: ${e.message}`, 0);
+          Logger.log(` -> DiscoveryQueue error: ${e.message}`, 0);
         }
       }
 
       if (!generated) {
-        Logger.log(" -> Failed to find any method to generate a new queue.", 0);
-        UI.updateStatusText("Queue generation failed.", "error");
-        State.loop.failedQueueRestarts++; // Increment failure count immediately
+        Logger.log(" -> Failed to find any method to generate queue", 0);
+        UI.updateStatusText("Queue generation failed", "error");
+        State.loop.failedQueueRestarts++;
 
-        // Check failure count and stop if exceeded
-        if (
-          State.loop.failedQueueRestarts >= CONFIG.MAX_QUEUE_RESTART_FAILURES
-        ) {
-          Logger.log(
-            `Queue generation failed ${State.loop.failedQueueRestarts} times. Stopping loop.`,
-            0
-          );
-          UI.updateStatusText(
-            `Restart Failed ${CONFIG.MAX_QUEUE_RESTART_FAILURES}x. Stopping.`,
-            "error"
-          );
-          // Stop the loop but keep settings enabled, allowing manual restart later
+        if (State.loop.failedQueueRestarts >= CONFIG.MAX_QUEUE_RESTART_FAILURES) {
+          Logger.log(`Queue generation failed ${State.loop.failedQueueRestarts} times. Stopping loop.`, 0);
+          UI.updateStatusText(`Restart Failed ${CONFIG.MAX_QUEUE_RESTART_FAILURES}x. Stopping.`, "error");
           LoopController.stopLoop(true);
-          return false; // Indicate definitive failure
+          return false;
         }
       } else {
-        // Reset failure count on success
         State.loop.failedQueueRestarts = 0;
-        Logger.log(" -> Queue generation initiated.", 1);
-        // Wait after initiating generation for page to potentially update
-        await new Promise((resolve) =>
-          setTimeout(resolve, CONFIG.TIMING.QUEUE_GENERATION_DELAY)
-        );
-        // Optionally ensure queue elements are visible after delay (might help if Steam UI is slow)
+        Logger.log(" -> Queue generation initiated", 1);
+        await new Promise((resolve) => setTimeout(resolve, CONFIG.TIMING.QUEUE_GENERATION_DELAY));
         this.ensureQueueVisible();
       }
 
-      return generated; // True if initiated, False if definitively failed after retries
+      return generated;
+    },
+  };
+
+  // ====================================
+  // Module: Error Handler
+  // ====================================
+  const ErrorHandler = {
+    /**
+     * Handle errors with consistent logging and recovery
+     * @param {Error} error - The error object
+     * @param {string} context - Context where error occurred
+     * @param {boolean} stopLoop - Whether to stop the loop on error
+     */
+    handleError: function (error, context = "Unknown", stopLoop = false) {
+      const errorMessage = `Error in ${context}: ${error.message}`;
+      Logger.log(errorMessage, 0);
+
+      if (error.stack) {
+        Logger.log(`Stack trace: ${error.stack}`, 2);
+      }
+
+      UI.updateStatusText(`Error: ${error.message}`, "error");
+
+      if (stopLoop && State.loop.state === "Running") {
+        LoopController.stopLoop(true);
+      }
+
+      // Clear DOM cache on error to force refresh
+      DOMCache.clear();
+      GameInfoUtils.clearCache();
+    },
+
+    /**
+     * Safe wrapper for async operations
+     * @param {Function} operation - Async operation to wrap
+     * @param {string} context - Context for error handling
+     * @returns {Promise<any>} Operation result or null on error
+     */
+    safeAsync: async function (operation, context = "Operation") {
+      try {
+        return await operation();
+      } catch (error) {
+        this.handleError(error, context, true);
+        return null;
+      }
+    },
+
+    /**
+     * Validate DOM state before operations
+     * @returns {boolean} Whether DOM is in valid state
+     */
+    validateDOMState: function () {
+      return (
+        document.readyState === "complete" ||
+        document.readyState === "interactive"
+      );
     },
   };
 
@@ -1497,147 +1592,98 @@
      * @returns {Promise<boolean>} True if processing should continue on the current item, False otherwise.
      */
     checkQueueStatusAndHandle: async function () {
-      const queueEmptyContainer = document.querySelector(
-        CONFIG.SELECTORS.queueStatus.emptyContainer
-      );
-      const isOnExplorePage = window.location.pathname.includes("/explore");
-      const queueContainer = document.querySelector(
-        CONFIG.SELECTORS.queueStatus.container
-      );
-      const isQueueVisible = queueContainer?.offsetParent; // Check if queue area is visible and in layout
-      const isEmptyMessageVisible =
-        queueEmptyContainer?.offsetParent &&
-        queueEmptyContainer.style.display !== "none";
-
-      // --- Case 1: Queue finished message is visible ---
-      if (isEmptyMessageVisible) {
-        Logger.log("Discovery Queue finished/empty message visible.");
-
-        if (
-          State.settings.autoStartEnabled &&
-          State.settings.autoRestartQueueEnabled
-        ) {
-          Logger.log(
-            "Auto-restart enabled. Attempting new queue generation..."
-          );
-          // generateNewQueue handles failure counting and potential loop stopping
-          await QueueNavigation.generateNewQueue();
-        } else {
-          Logger.log(
-            "Queue finished and Auto-restart disabled. Stopping loop."
-          );
-          UI.updateStatusText("Queue finished. Stopped.");
-          LoopController.stopLoop(true); // Stop but keep settings enabled
-        }
-        return false; // Don't process current (non-existent) item
+      if (!ErrorHandler.validateDOMState()) {
+        Logger.log("DOM not ready, waiting...", 1);
+        return false;
       }
 
-      // --- Case 2: On explore page, but queue is not visible (needs starting) ---
-      // This implies we are on /explore/ but haven't clicked "Start Queue" or it hasn't loaded yet.
-      if (isOnExplorePage && !isQueueVisible) {
-        Logger.log(
-          "On explore page, queue container not visible or not found."
+      try {
+        const queueEmptyContainer = DOMCache.get(
+          "queueEmpty",
+          CONFIG.SELECTORS.queueStatus.emptyContainer
         );
+        const isOnExplorePage = window.location.pathname.includes("/explore");
+        const queueContainer = DOMCache.get(
+          "queueContainer",
+          CONFIG.SELECTORS.queueStatus.container
+        );
+        const isQueueVisible = queueContainer?.offsetParent;
+        const isEmptyMessageVisible =
+          queueEmptyContainer?.offsetParent &&
+          queueEmptyContainer.style.display !== "none";
 
-        if (State.settings.autoStartEnabled) {
-          Logger.log(
-            "Auto-start enabled. Attempting to start/generate queue from explore page..."
-          );
-          // Use generateNewQueue which finds the start/refresh button
-          await QueueNavigation.generateNewQueue();
-        } else {
-          Logger.log(
-            "On explore page, queue inactive, Auto-start disabled. Stopping loop."
-          );
-          UI.updateStatusText("Stopped (Needs Queue Start).");
-          LoopController.stopLoop(true); // Keep settings
+        // Rate limiting check
+        if (State.loop.lastCheck && Date.now() - State.loop.lastCheck < 1000) {
+          return false;
         }
-        return false; // Don't process yet, wait for queue to load after generation attempt
-      }
+        State.loop.lastCheck = Date.now();
 
-      // --- Case 3: On an app page, check for essential navigation elements ---
-      // If we're on an app page (/app/...), we expect queue navigation buttons. If they're missing, something is wrong.
-      if (window.location.pathname.includes("/app/")) {
-        const nextButton = document.querySelector(
-          CONFIG.SELECTORS.queueNav.nextButton
-        );
-        const ignoreContainer = document.getElementById(
-          CONFIG.SELECTORS.queueNav.ignoreButtonContainer.substring(1)
-        );
-        const ignoreButton = ignoreContainer?.querySelector(
-          CONFIG.SELECTORS.queueNav.ignoreButtonInContainer
-        );
-        const nextForm = document.querySelector(
-          CONFIG.SELECTORS.queueNav.nextForm
-        );
+        // --- Case 1: Queue finished message is visible ---
+        if (isEmptyMessageVisible) {
+          Logger.log("Discovery Queue finished/empty message visible.");
 
-        // Check if *none* of the advancement methods seem available and visible
-        if (
-          !nextButton?.offsetParent &&
-          !ignoreButton?.offsetParent &&
-          !nextForm
-        ) {
-          Logger.log(
-            "On app page but missing visible queue navigation elements. Potential error or not a queue item?",
-            0
-          );
-          // This could happen if navigating directly to an app page not via the queue.
-          // If the loop is running, treat this as an error state for the queue.
-          if (State.loop.state === "Running") {
-            UI.updateStatusText("Error: Invalid queue state?", "error");
+          if (
+            State.settings.autoStartEnabled &&
+            State.settings.autoRestartQueueEnabled
+          ) {
             Logger.log(
-              " -> Stopping loop due to invalid state on app page.",
-              0
+              "Auto-restart enabled. Attempting new queue generation..."
             );
-            LoopController.stopLoop(true); // Stop but keep settings
+            const generated = await ErrorHandler.safeAsync(
+              () => QueueNavigation.generateNewQueue(),
+              "Queue Generation"
+            );
+            if (!generated) {
+              ErrorHandler.handleError(
+                new Error("Failed to generate new queue"),
+                "Queue Generation",
+                true
+              );
+              return false;
+            }
           } else {
-            // If stopped/paused, just indicate the state but don't force stop
-            UI.updateStatusText("Stopped (Invalid state?)");
-          }
-          return false; // Cannot proceed on this page
-        }
-      }
-
-      // --- Case 4: On explore page WITH visible queue ---
-      // Need to ensure wishlist/ignore buttons are present on the explore page itself
-      if (isOnExplorePage && isQueueVisible) {
-        const exploreWishlistButton = document.querySelector(
-          CONFIG.SELECTORS.wishlist.addButton
-        ); // Check specific explore wishlist button
-        const exploreIgnoreButton = document.querySelector(
-          CONFIG.SELECTORS.queueNav.ignoreButtonInContainer
-        );
-        const exploreNextButton = document.querySelector(
-          CONFIG.SELECTORS.queueNav.nextButton
-        );
-
-        // If the core interaction buttons are missing on the explore page queue, something is wrong
-        if (
-          !exploreWishlistButton &&
-          !exploreIgnoreButton &&
-          !exploreNextButton?.offsetParent
-        ) {
-          Logger.log(
-            "On explore page queue, but missing interaction buttons (Wishlist/Ignore/Next). Potential error.",
-            0
-          );
-          if (State.loop.state === "Running") {
-            UI.updateStatusText("Error: Invalid queue state?", "error");
             Logger.log(
-              " -> Stopping loop due to invalid state on explore page.",
-              0
+              "Queue finished and Auto-restart disabled. Stopping loop."
             );
+            UI.updateStatusText("Queue finished. Stopped.");
             LoopController.stopLoop(true);
-          } else {
-            UI.updateStatusText("Stopped (Invalid state?)");
           }
           return false;
         }
-      }
 
-      // If none of the above problematic conditions are met, assume queue is active and ready.
-      State.loop.failedQueueRestarts = 0; // Reset failure counter as we seem to have a valid item/state
-      return true; // Okay to proceed with processing the current item
+        // --- Case 2: On explore page, but queue is not visible ---
+        if (isOnExplorePage && !isQueueVisible) {
+          Logger.log("On explore page, queue container not visible.");
+
+          if (State.settings.autoStartEnabled) {
+            Logger.log("Auto-start enabled. Attempting to start queue...");
+            const generated = await ErrorHandler.safeAsync(
+              () => QueueNavigation.generateNewQueue(),
+              "Queue Start"
+            );
+            if (!generated) {
+              ErrorHandler.handleError(
+                new Error("Failed to start queue"),
+                "Queue Start",
+                true
+              );
+              return false;
+            }
+          } else {
+            Logger.log("Queue inactive, Auto-start disabled. Stopping.");
+            UI.updateStatusText("Stopped (Needs Queue Start).");
+            LoopController.stopLoop(true);
+          }
+          return false;
+        }
+
+        // Reset failure counter on success
+        State.loop.failedQueueRestarts = 0;
+        return true;
+      } catch (error) {
+        ErrorHandler.handleError(error, "Queue Status Check", true);
+        return false;
+      }
     },
 
     /**
@@ -2130,12 +2176,40 @@
 
       Logger.log("Checking for script updates...", 1);
       try {
-        const response = await fetch(CONFIG.VERSION_CHECK_URL, {
-          cache: "no-cache",
+        // Use GM_xmlhttpRequest instead of fetch to bypass CSP restrictions
+        const response = await new Promise((resolve, reject) => {
+          GM_xmlhttpRequest({
+            method: "GET",
+            url: CONFIG.VERSION_CHECK_URL,
+            headers: {
+              "Cache-Control": "no-cache"
+            },
+            onload: function(response) {
+              if (response.status >= 200 && response.status < 300) {
+                try {
+                  const data = JSON.parse(response.responseText);
+                  resolve({
+                    ok: true,
+                    status: response.status,
+                    json: () => Promise.resolve(data)
+                  });
+                } catch (e) {
+                  reject(new Error(`Invalid JSON response: ${e.message}`));
+                }
+              } else {
+                reject(new Error(`HTTP error! Status: ${response.status}`));
+              }
+            },
+            onerror: function(error) {
+              reject(new Error(`Network error: ${error}`));
+            }
+          });
         });
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
+
         const data = await response.json();
         const latestVersion = data.version;
         const updateUrl = data.updateUrl;
