@@ -3,6 +3,7 @@
 ## 🎯 Filosofia
 
 Este projeto foi dividido em **módulos simples e independentes**, seguindo a filosofia do `loop_simples_completo.js`:
+
 - ✅ Código limpo e direto
 - ✅ Funções pequenas e focadas
 - ✅ Fácil de entender e modificar
@@ -12,7 +13,7 @@ Este projeto foi dividido em **módulos simples e independentes**, seguindo a fi
 
 ## 📂 Estrutura de Arquivos
 
-```
+```text
 src/
 ├── main.js       # Ponto de entrada (UserScript)
 ├── config.js     # Configurações e constantes
@@ -30,13 +31,16 @@ src/
 ## 🔍 Descrição dos Módulos
 
 ### 1. **main.js** (~50 linhas)
+
 **O que faz:** Ponto de entrada do script
+
 - Inicializa a UI
 - Conecta eventos dos botões
 - Configura atalhos de teclado
 - Inicia auto-start se habilitado
 
 **Quando modificar:**
+
 - Adicionar novos atalhos de teclado
 - Mudar comportamento de inicialização
 - Adicionar novos event listeners globais
@@ -44,18 +48,22 @@ src/
 ---
 
 ### 2. **config.js** (~50 linhas)
+
 **O que faz:** Centraliza todas as configurações
+
 - Versão do script
 - Timings (delays, intervalos)
 - Seletores CSS do Steam
 - Chaves de armazenamento
 
 **Quando modificar:**
+
 - Steam mudou a estrutura HTML
 - Ajustar velocidade do loop
 - Adicionar novos seletores
 
 **Exemplo:**
+
 ```javascript
 TIMING: {
   LOOP_MIN: 700,    // Delay mínimo entre ações
@@ -66,13 +74,16 @@ TIMING: {
 ---
 
 ### 3. **state.js** (~30 linhas)
+
 **O que faz:** Gerencia o estado global
+
 - Estado do loop (running/stopped)
 - Configurações do usuário
 - Estatísticas (wishlisted, skipped)
 - Referências da UI
 
 **Quando modificar:**
+
 - Adicionar novas configurações
 - Adicionar novos contadores
 - Mudar valores padrão
@@ -80,7 +91,9 @@ TIMING: {
 ---
 
 ### 4. **utils.js** (~30 linhas)
+
 **O que faz:** Funções utilitárias reutilizáveis
+
 - `wait(ms)` - Delay com Promise
 - `visible(el)` - Verifica visibilidade
 - `pick(sel)` - querySelector melhorado
@@ -88,13 +101,16 @@ TIMING: {
 - `log(msg)` - Log padronizado
 
 **Quando modificar:**
+
 - Adicionar novas funções auxiliares
 - Melhorar seletores existentes
 
 ---
 
 ### 5. **game.js** (~45 linhas)
+
 **O que faz:** Detecta informações do jogo
+
 - Verifica se tem cartas colecionáveis
 - Verifica se já possui o jogo
 - Detecta DLC
@@ -102,11 +118,13 @@ TIMING: {
 - Decide se deve pular
 
 **Quando modificar:**
+
 - Adicionar novos critérios de skip
 - Melhorar detecção de DLC/demos
 - Adicionar novos tipos de filtro
 
 **Exemplo:**
+
 ```javascript
 shouldSkip: (settings) => {
   if (settings.skipOwned && Game.isOwned()) {
@@ -119,12 +137,15 @@ shouldSkip: (settings) => {
 ---
 
 ### 6. **wishlist.js** (~40 linhas)
+
 **O que faz:** Gerencia a wishlist
+
 - Verifica se já está na wishlist
 - Adiciona à wishlist
 - Aguarda confirmação
 
 **Quando modificar:**
+
 - Steam mudar botão de wishlist
 - Adicionar verificações extras
 - Melhorar detecção de sucesso
@@ -132,17 +153,21 @@ shouldSkip: (settings) => {
 ---
 
 ### 7. **queue.js** (~55 linhas)
+
 **O que faz:** Gerencia a fila de descoberta
+
 - Inicia nova fila
 - Avança para próximo jogo
 - Detecta fila vazia
 
 **Quando modificar:**
+
 - Adicionar novos seletores de botões
 - Melhorar detecção de fila vazia
 - Adicionar fallbacks
 
 **Exemplo:**
+
 ```javascript
 tryStart: () => {
   for (const selector of CONFIG.SELECTORS.queueButtons) {
@@ -159,18 +184,22 @@ tryStart: () => {
 ---
 
 ### 8. **ui.js** (~140 linhas)
+
 **O que faz:** Cria e gerencia a interface
+
 - Cria painel flutuante
 - Atualiza contadores
 - Muda status
 - Gerencia botões e checkboxes
 
 **Quando modificar:**
+
 - Redesenhar interface
 - Adicionar novos controles
 - Mudar cores/estilos
 
 **Estrutura:**
+
 ```javascript
 UI.create()              // Cria UI
 UI.updateStatus(msg)     // Atualiza status
@@ -181,19 +210,23 @@ UI.setRunning(bool)      // Habilita/desabilita botões
 ---
 
 ### 9. **loop.js** (~90 linhas)
+
 **O que faz:** Loop principal da aplicação
+
 - Controla start/stop
 - Executa steps em loop
 - Coordena todos os módulos
 - Trata erros
 
 **Quando modificar:**
+
 - Mudar lógica do fluxo
 - Adicionar novos steps
 - Melhorar tratamento de erros
 
 **Fluxo:**
-```
+
+```text
 Loop.start()
   └─> Loop.run()
        └─> Loop.step() [loop]
@@ -207,7 +240,7 @@ Loop.start()
 
 ## 🔄 Fluxo de Execução
 
-```
+```text
 1. main.js inicializa
    ↓
 2. UI.create() monta interface
@@ -232,6 +265,7 @@ Loop.start()
 ## 🛠️ Como Usar
 
 ### Desenvolvimento Local
+
 ```bash
 # Os arquivos já estão em src/
 # Para usar no Tampermonkey, você precisa:
@@ -240,6 +274,7 @@ Loop.start()
 ```
 
 ### Build Simples (Manual)
+
 ```bash
 # Copie o conteúdo de cada arquivo na ordem:
 cat src/utils.js src/config.js src/state.js src/game.js \
@@ -250,6 +285,7 @@ cat src/utils.js src/config.js src/state.js src/game.js \
 ### Modificações Comuns
 
 **Mudar velocidade:**
+
 ```javascript
 // config.js
 TIMING: {
@@ -259,6 +295,7 @@ TIMING: {
 ```
 
 **Adicionar novo filtro:**
+
 ```javascript
 // game.js
 shouldSkip: (settings) => {
@@ -271,6 +308,7 @@ shouldSkip: (settings) => {
 ```
 
 **Adicionar botão na UI:**
+
 ```javascript
 // ui.js → HTML
 <button id="wl-pause">Pause</button>
