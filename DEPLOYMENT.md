@@ -45,6 +45,14 @@ No Greasy Fork, configure o script para sincronizar por URL com:
 https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js
 ```
 
+Para a informacao adicional da pagina do script, use um arquivo dedicado em vez do `README.md`:
+
+```text
+https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/GREASYFORK.md
+```
+
+Formato recomendado no Greasy Fork: `Markdown`.
+
 Depois configure um webhook `push` no GitHub apontando para o endpoint fornecido pelo Greasy Fork.
 
 Importante:
