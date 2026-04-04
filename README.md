@@ -16,6 +16,7 @@ Transforme sua experiência na Steam com o **Steam Infinite Wishlister**, a ferr
 ## 📚 Documentação
 
 - **[Guia de Arquitetura](ARCHITECTURE.md)** - Documentação completa da estrutura modular, fluxos de execução e guia de manutenção do código
+- **[Guia de Deploy](DEPLOYMENT.md)** - Publicação via GitHub Raw, Tampermonkey e sincronização com Greasy Fork
 
 ## Por que usar o Steam Infinite Wishlister? 💡
 
@@ -49,7 +50,7 @@ Transforme sua experiência na Steam com o **Steam Infinite Wishlister**, a ferr
 ## Instalação 🛠️
 
 1. Instale o **[Tampermonkey](https://www.tampermonkey.net/)** (ou outro gerenciador de userscripts compatível como Violentmonkey ou Greasemonkey) no seu navegador (Chrome, Firefox, Edge, Opera, etc.).
-2. **[Clique aqui para instalar o script](https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/SteamInfiniteWishlister.user.js)** (ou copie o código do arquivo `.user.js` e cole em um novo script no Tampermonkey).
+2. **[Clique aqui para instalar o script](https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js)** (ou copie o código do arquivo `.user.js` e cole em um novo script no Tampermonkey).
 3. Visite a [Loja Steam](https://store.steampowered.com/), especialmente a [Fila de Descobertas](https://store.steampowered.com/explore/) ou qualquer página de jogo (`/app/...`), para ver o painel da ferramenta.
 
 ## Como Usar 🎮
@@ -167,7 +168,7 @@ Este script requer as seguintes permissões do Tampermonkey (`@grant`):
 ## Installation 🛠️
 
 1. Install **[Tampermonkey](https://www.tampermonkey.net/)** (or another compatible userscript manager like Violentmonkey or Greasemonkey) on your browser (Chrome, Firefox, Edge, Opera, etc.).
-2. **[Click here to install the script](https://raw.githubusercontent.com/bernardopg/steam-wishlist-looper/main/SteamInfiniteWishlister.user.js)** (or copy the code from the `.user.js` file and paste it into a new Tampermonkey script).
+2. **[Click here to install the script](https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js)** (or copy the code from the `.user.js` file and paste it into a new Tampermonkey script).
 3. Visit the [Steam Store](https://store.steampowered.com/), especially the [Discovery Queue](https://store.steampowered.com/explore/) or any game page (`/app/...`), to see the tool's panel.
 
 ## How to Use 🎮

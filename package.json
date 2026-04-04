@@ -1,0 +1,10 @@
+{
+  "name": "steam-infinite-wishlister",
+  "private": true,
+  "version": "2.1.0",
+  "description": "Build e distribuicao do userscript Steam Infinite Wishlister",
+  "scripts": {
+    "build": "node scripts/build-userscript.mjs",
+    "check": "node scripts/build-userscript.mjs --check"
+  }
+}
