@@ -219,12 +219,30 @@ const Game = {
       return true;
     }
 
-    // Debug: mostrar o que foi encontrado
+    // Debug: mostrar exatamente o que foi encontrado
     log("Sem cartas detectadas. Verificando o que existe na página:", 1);
-    log("  - Links na página com category2: " + document.querySelectorAll('a[href*="category2"]').length, 1);
-    log("  - game_area_details_specs_ctn: " + document.querySelectorAll('.game_area_details_specs_ctn').length, 1);
-    log("  - queue_item_text: " + document.querySelectorAll('.queue_item_text').length, 1);
-    log("  - category_icon: " + document.querySelectorAll('.category_icon').length, 1);
+
+    // Debug: mostrar todos os links com category2
+    const allCat2Links = document.querySelectorAll('a[href*="category2"]');
+    log("  - Total links com category2: " + allCat2Links.length, 1);
+    allCat2Links.forEach((link, i) => {
+      log(`    [${i}] href="${link.getAttribute('href')}" text="${link.textContent.trim().substring(0, 50)}"`, 1);
+    });
+
+    // Debug: verificar game_area_details_specs_ctn
+    const specsCtns = document.querySelectorAll('.game_area_details_specs_ctn');
+    log("  - game_area_details_specs_ctn: " + specsCtns.length, 1);
+    specsCtns.forEach((ctn, i) => {
+      log(`    [${i}] href="${ctn.getAttribute('href')}" text="${ctn.textContent.trim().substring(0, 50)}"`, 1);
+    });
+
+    // Debug: verificar category_icons
+    const icons = document.querySelectorAll('.category_icon');
+    log("  - category_icon: " + icons.length, 1);
+    icons.forEach((icon, i) => {
+      log(`    [${i}] src="${icon.getAttribute('src')}"`, 1);
+    });
+
     return false;
   },
 
