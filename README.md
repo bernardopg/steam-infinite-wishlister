@@ -1,6 +1,6 @@
 # Steam Infinite Wishlister
 
-[![Version](https://img.shields.io/badge/version-2.1-orange.svg)](https://github.com/bernardopg/steam-infinite-wishlister/releases)
+[![Version](https://img.shields.io/badge/version-2.2-orange.svg)](https://github.com/bernardopg/steam-infinite-wishlister/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Tampermonkey](https://img.shields.io/badge/Tampermonkey-4.15%2B-FF8039.svg)](https://www.tampermonkey.net/)
 [![Greasy Fork](https://img.shields.io/badge/Greasy%20Fork-Available-670000.svg)](https://greasyfork.org/scripts/steam-infinite-wishlister)
