@@ -4,9 +4,9 @@
 
 ---
 
-## ✅ RESOLVIDOS (25/26 itens)
+## ✅ RESOLVIDOS (26/27 itens)
 
-### Críticos (7/7)
+### Críticos (8/8)
 
 | # | Item | Status | Data |
 |---|------|--------|------|
@@ -17,6 +17,7 @@
 | C5 | **GM_getValue no top-level** | ✅ Movido para initSettings() | 2026-04-07 |
 | C6 | **Script sumindo do Tampermonkey** | ✅ Removidos @updateURL/@downloadURL (auto-update falhando) | 2026-04-07 |
 | C7 | **Seletor de cartas incorreto** | ✅ Adicionado category2=29 para detectar Trading Cards | 2026-04-07 |
+| C8 | **Seletor do botão wishlist incorreto** | ✅ Corrigido para `.add_to_wishlist` (era `.add_to_wishlist .btn_addtocart`) | 2026-04-07 |
 
 ### Importantes (8/8)
 
@@ -53,7 +54,7 @@
 
 ---
 
-## ⏳ PENDENTES (1/26 itens)
+## ⏳ PENDENTES (1/27 itens)
 
 ### Médias (1 restante)
 
@@ -80,6 +81,7 @@
 
 | Arquivo | Mudança |
 |---------|---------|
+| `src/config.js` | Corrigido wishlistButton: `.add_to_wishlist` (era `.add_to_wishlist .btn_addtocart`) |
 | `src/config.js` | Corrigido seletor tradingCards: `a[href*="category2=29"], a[href*="/tradingcards/"]` |
 | `src/main.js` | Removidos @updateURL/@downloadURL para prevenir auto-uninstall |
 | `src/state.js` | Adicionado saveStats(), persistência de stats via GM_setValue |
@@ -129,6 +131,7 @@
 | Persistência Contadores | ✅ Implementado | saveStats() com GM_setValue para Adicionados/Pulados |
 | Concluir Lista | ✅ Implementado | clickFinish() detecta .finish_queue_text e clica automaticamente |
 | Detecção de Cartas | ✅ Corrigido | Seletor category2=29 detecta Trading Cards corretamente |
+| Botão Wishlist | ✅ Corrigido | Seletor `.add_to_wishlist` corresponde ao HTML real |
 | Documentação | ✅ Atualizada | docs/pt-br/arquitetura.md reescrita com estrutura modular |
 | Estabilidade | ✅ Corrigido | Script não desaparece mais do Tampermonkey |
 | Testes | ❌ Inexistentes | Zero cobertura |
@@ -139,23 +142,24 @@
 ## 🚀 Próximos Passos Recomendados
 
 ### Prioridade Alta (para próxima release):
-1. **Testar detecção de cartas** — verificar que Flotsam e outros jogos com cartas são detectados corretamente
-2. **Rodar build e testar no Tampermonkey** — verificar se age skip funciona na prática
-3. **Testar confirmação de wishlist** — verificar polling detecta sucesso corretamente
-4. **Testar retry de rede** — simular falhas de conexão
-5. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
-6. **Testar "Concluir lista"** — verificar que clickFinish() clica no botão correto
-7. **Verificar estabilidade** — confirmar que script não desaparece após correção
+1. **Testar adição à wishlist** — verificar que jogos com cartas são adicionados corretamente
+2. **Testar detecção de cartas** — verificar que Flotsam e outros jogos com cartas são detectados corretamente
+3. **Rodar build e testar no Tampermonkey** — verificar se age skip funciona na prática
+4. **Testar confirmação de wishlist** — verificar polling detecta sucesso corretamente
+5. **Testar retry de rede** — simular falhas de conexão
+6. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
+7. **Testar "Concluir lista"** — verificar que clickFinish() clica no botão correto
+8. **Verificar estabilidade** — confirmar que script não desaparece após correção
 
 ### Prioridade Média (para qualidade):
-8. **Criar testes básicos** — smoke test do loop, testes unitários de utils
-9. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
+9. **Criar testes básicos** — smoke test do loop, testes unitários de utils
+10. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
 
 ### Prioridade Baixa (nice-to-have):
-10. **CI/CD** — GitHub Actions para validar build em PRs
-11. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
-12. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
-13. **Seletores resilientes** — sistema de fallback para seletores que mudam
+11. **CI/CD** — GitHub Actions para validar build em PRs
+12. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
+13. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
+14. **Seletores resilientes** — sistema de fallback para seletores que mudam
 
 ---
 
