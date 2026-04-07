@@ -35,6 +35,9 @@ const CONFIG = {
     // Fila vazia
     queueEmpty: ".discover_queue_empty",
 
+    // Concluir lista (último item da fila)
+    finishQueue: ".finish_queue_text, .btn_finish_queue",
+
     // Age Gate (verificação de idade)
     ageGate: "#age_gate, .age_gate_ctn, [class*='agegate']",
     ageConfirm: "#age_year, #ageGateYear, input[name='age_year'], input[name='ageYear']",

@@ -61,6 +61,9 @@ const CONFIG = {
     // Fila vazia
     queueEmpty: ".discover_queue_empty",
 
+    // Concluir lista (último item da fila)
+    finishQueue: ".finish_queue_text, .btn_finish_queue",
+
     // Age Gate (verificação de idade)
     ageGate: "#age_gate, .age_gate_ctn, [class*='agegate']",
     ageConfirm: "#age_year, #ageGateYear, input[name='age_year'], input[name='ageYear']",
@@ -356,6 +359,16 @@ const Queue = {
     return empty && visible(empty);
   },
 
+  clickFinish: () => {
+    const btn = pick(CONFIG.SELECTORS.finishQueue);
+    if (btn && visible(btn)) {
+      btn.click();
+      log("Cliquei em: Concluir lista");
+      return true;
+    }
+    return false;
+  },
+
   advance: async () => {
     if (Queue.clickNext()) {
       await wait(600);
@@ -641,8 +654,17 @@ const Loop = {
         return;
       }
 
-      // 1. Verificar se a fila está vazia e gerar nova fila
+      // 1. Verificar se a fila está vazia
       if (Queue.isEmpty()) {
+        // 1a. Tentar concluir lista primeiro
+        if (Queue.clickFinish()) {
+          UI.updateStatus("Lista concluída!", "#a1dd4a");
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+          State.processing = false;
+          return;
+        }
+
+        // 1b. Gerar nova fila
         UI.updateStatus("Fila vazia, reiniciando...", "#e4d00a");
         if (Queue.tryStart()) {
           await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);

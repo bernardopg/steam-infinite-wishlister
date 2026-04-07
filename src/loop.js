@@ -64,8 +64,17 @@ const Loop = {
         return;
       }
 
-      // 1. Verificar se a fila está vazia e gerar nova fila
+      // 1. Verificar se a fila está vazia
       if (Queue.isEmpty()) {
+        // 1a. Tentar concluir lista primeiro
+        if (Queue.clickFinish()) {
+          UI.updateStatus("Lista concluída!", "#a1dd4a");
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+          State.processing = false;
+          return;
+        }
+
+        // 1b. Gerar nova fila
         UI.updateStatus("Fila vazia, reiniciando...", "#e4d00a");
         if (Queue.tryStart()) {
           await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);

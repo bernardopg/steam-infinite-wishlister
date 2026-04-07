@@ -44,6 +44,16 @@ const Queue = {
     return empty && visible(empty);
   },
 
+  clickFinish: () => {
+    const btn = pick(CONFIG.SELECTORS.finishQueue);
+    if (btn && visible(btn)) {
+      btn.click();
+      log("Cliquei em: Concluir lista");
+      return true;
+    }
+    return false;
+  },
+
   advance: async () => {
     if (Queue.clickNext()) {
       await wait(600);
