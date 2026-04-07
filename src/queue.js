@@ -56,9 +56,21 @@ const Queue = {
 
   advance: async () => {
     if (Queue.clickNext()) {
-      await wait(600);
+      await wait(CONFIG.TIMING.ACTION_DELAY);
       return true;
     }
+    // If clickNext failed, try finding and clicking by text
+    const textBtns = ["Próximo da lista", "Próximo", "Next"];
+    for (const txt of textBtns) {
+      const el = byText(txt);
+      if (el && visible(el)) {
+        el.click();
+        log(`Cliquei em botão por texto: "${txt}"`);
+        await wait(CONFIG.TIMING.ACTION_DELAY);
+        return true;
+      }
+    }
+    log("Falha ao avançar: nenhum botão de próximo encontrado", 1);
     return false;
   },
 };

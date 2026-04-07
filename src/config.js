@@ -13,9 +13,9 @@ const CONFIG = {
   SELECTORS: {
     // Botões de fila
     queueButtons: [
+      "#discovery_queue_start_link", //必须先点这个开始队列
       "#refresh_queue_btn > span",
       "#refresh_queue_btn",
-      "#discovery_queue_start_link",
     ],
 
     // Wishlist

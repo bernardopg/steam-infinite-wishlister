@@ -40,9 +40,9 @@ const CONFIG = {
   SELECTORS: {
     // Botões de fila
     queueButtons: [
+      "#discovery_queue_start_link", //必须先点这个开始队列
       "#refresh_queue_btn > span",
       "#refresh_queue_btn",
-      "#discovery_queue_start_link",
     ],
 
     // Wishlist
@@ -448,9 +448,21 @@ const Queue = {
 
   advance: async () => {
     if (Queue.clickNext()) {
-      await wait(600);
+      await wait(CONFIG.TIMING.ACTION_DELAY);
       return true;
     }
+    // If clickNext failed, try finding and clicking by text
+    const textBtns = ["Próximo da lista", "Próximo", "Next"];
+    for (const txt of textBtns) {
+      const el = byText(txt);
+      if (el && visible(el)) {
+        el.click();
+        log(`Cliquei em botão por texto: "${txt}"`);
+        await wait(CONFIG.TIMING.ACTION_DELAY);
+        return true;
+      }
+    }
+    log("Falha ao avançar: nenhum botão de próximo encontrado", 1);
     return false;
   },
 };
@@ -712,6 +724,24 @@ const Loop = {
     State.processing = true;
 
     try {
+      // Verificar se estamos na página de visão geral da fila (/explore/)
+      // Se sim, clicar no botão para iniciar a fila antes de processar
+      const isQueueOverview = document.querySelector('.discovery_queue_static') &&
+                              !document.querySelector('.apphub_AppName, .queue_item_title');
+      if (isQueueOverview) {
+        log("Página de visão geral da fila detectada, iniciando fila...", 1);
+        UI.updateStatus("Iniciando fila...", "#e4d00a");
+        if (Queue.tryStart()) {
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+          State.processing = false;
+          return;
+        } else {
+          log("Não foi possível iniciar a fila automaticamente. Clique manualmente.", 1);
+          State.processing = false;
+          return;
+        }
+      }
+
       // 0. Verificar e bypass age gate
       if (AgeSkip.isActive()) {
         log("Age gate detectado, tentando bypass...");

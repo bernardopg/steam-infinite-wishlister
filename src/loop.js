@@ -45,6 +45,24 @@ const Loop = {
     State.processing = true;
 
     try {
+      // Verificar se estamos na página de visão geral da fila (/explore/)
+      // Se sim, clicar no botão para iniciar a fila antes de processar
+      const isQueueOverview = document.querySelector('.discovery_queue_static') &&
+                              !document.querySelector('.apphub_AppName, .queue_item_title');
+      if (isQueueOverview) {
+        log("Página de visão geral da fila detectada, iniciando fila...", 1);
+        UI.updateStatus("Iniciando fila...", "#e4d00a");
+        if (Queue.tryStart()) {
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+          State.processing = false;
+          return;
+        } else {
+          log("Não foi possível iniciar a fila automaticamente. Clique manualmente.", 1);
+          State.processing = false;
+          return;
+        }
+      }
+
       // 0. Verificar e bypass age gate
       if (AgeSkip.isActive()) {
         log("Age gate detectado, tentando bypass...");
