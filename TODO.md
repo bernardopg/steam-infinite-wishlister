@@ -4,9 +4,9 @@
 
 ---
 
-## ✅ RESOLVIDOS (23/24 itens)
+## ✅ RESOLVIDOS (24/25 itens)
 
-### Críticos (5/5)
+### Críticos (6/6)
 
 | # | Item | Status | Data |
 |---|------|--------|------|
@@ -15,6 +15,7 @@
 | C3 | **Duplicação de código** | ✅ src/ é fonte de verdade, .user.js é gerado | 2026-04-07 |
 | C4 | **loop_simples_completo.js morto** | ✅ Arquivo removido | 2026-04-07 |
 | C5 | **GM_getValue no top-level** | ✅ Movido para initSettings() | 2026-04-07 |
+| C6 | **Script sumindo do Tampermonkey** | ✅ Removidos @updateURL/@downloadURL (auto-update falhando) | 2026-04-07 |
 
 ### Importantes (8/8)
 
@@ -51,7 +52,7 @@
 
 ---
 
-## ⏳ PENDENTES (1/24 itens)
+## ⏳ PENDENTES (1/25 itens)
 
 ### Médias (1 restante)
 
@@ -78,6 +79,7 @@
 
 | Arquivo | Mudança |
 |---------|---------|
+| `src/main.js` | Removidos @updateURL/@downloadURL para prevenir auto-uninstall |
 | `src/config.js` | Adicionados STORAGE.STATS_WISHLISTED, STORAGE.STATS_SKIPPED, SELECTORS.finishQueue |
 | `src/state.js` | Adicionado saveStats(), persistência de stats via GM_setValue |
 | `src/loop.js` | saveStats() chamado após cada ação; clickFinish() antes de reiniciar fila |
@@ -91,7 +93,6 @@
 | `src/ageSkip.js` | **Novo** — Age Gate Bypass com detecção automática, preenchimento de ano e submit |
 | `src/wishlist.js` | Reescrito — Confirmação por polling, retry automático, JSDoc |
 | `scripts/build-userscript.mjs` | Reescrito — concatenador de módulos na ordem |
-| `src/main.js` | Metadata block completo, @grant, @match, @run-at, menu commands |
 | `src/ui.js` | import { State } (named) |
 | `src/utils.js` | Logger com níveis (info, debug, verbose) |
 | `src/game.js` | Detecção de jogos: hasCards, isOwned, isDLC, getTitle, shouldSkip |
@@ -127,6 +128,7 @@
 | Persistência Contadores | ✅ Implementado | saveStats() com GM_setValue para Adicionados/Pulados |
 | Concluir Lista | ✅ Implementado | clickFinish() detecta .finish_queue_text e clica automaticamente |
 | Documentação | ✅ Atualizada | docs/pt-br/arquitetura.md reescrita com estrutura modular |
+| Estabilidade | ✅ Corrigido | Script não desaparece mais do Tampermonkey |
 | Testes | ❌ Inexistentes | Zero cobertura |
 | Size | 📉 Reduzido | ~500 linhas em módulos separados |
 
@@ -140,16 +142,17 @@
 3. **Testar retry de rede** — simular falhas de conexão
 4. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
 5. **Testar "Concluir lista"** — verificar que clickFinish() clica no botão correto
+6. **Verificar estabilidade** — confirmar que script não desaparece após correção
 
 ### Prioridade Média (para qualidade):
-6. **Criar testes básicos** — smoke test do loop, testes unitários de utils
-7. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
+7. **Criar testes básicos** — smoke test do loop, testes unitários de utils
+8. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
 
 ### Prioridade Baixa (nice-to-have):
-8. **CI/CD** — GitHub Actions para validar build em PRs
-9. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
-10. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
-11. **Seletores resilientes** — sistema de fallback para seletores que mudam
+9. **CI/CD** — GitHub Actions para validar build em PRs
+10. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
+11. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
+12. **Seletores resilientes** — sistema de fallback para seletores que mudam
 
 ---
 
