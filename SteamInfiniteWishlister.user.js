@@ -71,7 +71,6 @@ const CONFIG = {
   },
 };
 
-export default CONFIG;
 
 // === End: src/config.js ===
 
@@ -111,7 +110,6 @@ const log = (msg, level = 0) => {
   console.log(`[Steam Wishlist]${prefix} ${msg}`);
 };
 
-export { wait, visible, pick, byText, log };
 
 // === End: src/utils.js ===
 
@@ -154,7 +152,6 @@ function initSettings() {
   );
 }
 
-export { State, initSettings };
 
 // === End: src/state.js ===
 
@@ -200,7 +197,6 @@ const Game = {
   },
 };
 
-export default Game;
 
 // === End: src/game.js ===
 
@@ -242,7 +238,6 @@ const Wishlist = {
   },
 };
 
-export default Wishlist;
 
 // === End: src/wishlist.js ===
 
@@ -300,7 +295,6 @@ const Queue = {
   },
 };
 
-export default Queue;
 
 // === End: src/queue.js ===
 
@@ -434,7 +428,6 @@ const UI = {
   },
 };
 
-export default UI;
 
 // === End: src/ui.js ===
 
@@ -519,7 +512,6 @@ const Loop = {
   },
 };
 
-export default Loop;
 
 // === End: src/loop.js ===
 

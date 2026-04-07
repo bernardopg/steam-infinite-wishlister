@@ -21,10 +21,15 @@ const MODULE_ORDER = [
 ];
 
 /**
- * Remove linhas de `import ...` do código, já que tudo será concatenado.
+ * Remove linhas de `import ...` e `export ...` do código, já que tudo será concatenado.
  */
 function stripImports(code) {
-  return code.split("\n").filter((line) => !/^import\s/.test(line)).join("\n");
+  return code
+    .split("\n")
+    .filter((line) => !/^import\s/.test(line))
+    .filter((line) => !/^export\s/.test(line))
+    .filter((line) => !/^export\s*\{/.test(line))
+    .join("\n");
 }
 
 /**
