@@ -4,7 +4,7 @@
 
 ---
 
-## ✅ RESOLVIDOS (19/21 itens)
+## ✅ RESOLVIDOS (21/22 itens)
 
 ### Críticos (5/5)
 
@@ -29,7 +29,7 @@
 | I7 | **@run-at não especificado** | ✅ @run-at document-idle | 2026-04-07 |
 | I8 | **Import stripping no build** | ✅ stripImports() aplicado ao main body | 2026-04-07 |
 
-### Médias (5/8)
+### Médias (6/9)
 
 | # | Item | Status | Data |
 |---|------|--------|------|
@@ -38,23 +38,23 @@
 | M6 | **tryStart() redundante** | ✅ Removida chamada duplicada no loop | 2026-04-07 |
 | M7 | **Wishlist.add() sem confirmação** | ✅ Polling para verificar sucesso após clique | 2026-04-07 |
 | M8 | **Sem tratamento de erros de rede** | ✅ Retry automático com maxRetries | 2026-04-07 |
+| M9 | **Contadores resetam a cada sessão** | ✅ saveStats() com GM_setValue para stats | 2026-04-07 |
 
-### Baixas (1/8)
+### Baixas (2/8)
 
 | # | Item | Status | Data |
 |---|------|--------|------|
 | L5 | **package.json minimalista** | ✅ type: module adicionado | 2026-04-07 |
+| L10 | **Contadores não persistiam** | ✅ saveStats() com GM_setValue para Adicionados/Pulados | 2026-04-07 |
 
 ---
 
-## ⏳ PENDENTES (2/21 itens)
+## ⏳ PENDENTES (1/22 itens)
 
-### Médias (3 restantes)
+### Médias (1 restante)
 
 | # | Item | Arquivos | Prioridade |
 |---|------|----------|------------|
-| M2 | src/main.js sem IIFE protection | src/main.js | Baixa |
-| M3 | Seletores duplicados entre versões | src/config.js | Baixa |
 | M4 | Sem testes automatizados | Todo o projeto | Média |
 
 ### Baixas (7 restantes)
@@ -77,18 +77,18 @@
 
 | Arquivo | Mudança |
 |---------|---------|
-| `src/ageSkip.js` | **Novo** — Age Gate Bypass com detecção automática, preenchimento de ano e submit |
-| `src/wishlist.js` | Reescrito — Confirmação por polling, retry automático, JSDoc |
-| `src/loop.js` | Adicionado AgeSkip integration, melhor handling de erros |
-| `src/config.js` | Adicionados seletores de age gate e STORAGE.AGE_SKIP |
+| `src/config.js` | Adicionados STORAGE.STATS_WISHLISTED, STORAGE.STATS_SKIPPED |
+| `src/state.js` | Adicionado saveStats(), persistência de stats via GM_setValue |
+| `src/loop.js` | saveStats() chamado após cada ação (wishlist/skip/age gate fail) |
 
 ### Criados/Reescritos anteriormente:
 
 | Arquivo | Mudança |
 |---------|---------|
+| `src/ageSkip.js` | **Novo** — Age Gate Bypass com detecção automática, preenchimento de ano e submit |
+| `src/wishlist.js` | Reescrito — Confirmação por polling, retry automático, JSDoc |
 | `scripts/build-userscript.mjs` | Reescrito — concatenador de módulos na ordem |
 | `src/main.js` | Metadata block completo, @grant, @match, @run-at, menu commands |
-| `src/state.js` | Named export `{ State, initSettings }`, GM_* no init |
 | `src/ui.js` | import { State } (named) |
 | `src/utils.js` | Logger com níveis (info, debug, verbose) |
 | `src/queue.js` | Gerenciamento de fila com tryStart, clickNext, isEmpty, advance |
@@ -122,6 +122,7 @@
 | Age Gate Bypass | ✅ Implementado | Detecção automática, bypass com ano + submit |
 | Wishlist Confirmação | ✅ Implementado | Polling visual com timeout de 3s |
 | Retry de Rede | ✅ Implementado | maxRetries=2 com logging de erros |
+| Persistência Contadores | ✅ Implementado | saveStats() com GM_setValue para Adicionados/Pulados |
 | Testes | ❌ Inexistentes | Zero cobertura |
 | Documentação | ⚠️ Desatualizada | docs/ ainda reflete estrutura monolítica |
 | Size | 📉 Reduzido | ~500 linhas em módulos separados |
@@ -134,16 +135,17 @@
 1. **Rodar build e testar no Tampermonkey** — verificar se age skip funciona na prática
 2. **Testar confirmação de wishlist** — verificar polling detecta sucesso corretamente
 3. **Testar retry de rede** — simular falhas de conexão
+4. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
 
 ### Prioridade Média (para qualidade):
-4. **Criar testes básicos** — smoke test do loop, testes unitários de utils
-5. **Atualizar documentação** — docs/pt-br/arquitetura.md para refletir módulos src/
-6. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
+5. **Criar testes básicos** — smoke test do loop, testes unitários de utils
+6. **Atualizar documentação** — docs/pt-br/arquitetura.md para refletir módulos src/
+7. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
 
 ### Prioridade Baixa (nice-to-have):
-7. **CI/CD** — GitHub Actions para validar build em PRs
-8. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
-9. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
+8. **CI/CD** — GitHub Actions para validar build em PRs
+9. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
+10. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
 
 ---
 

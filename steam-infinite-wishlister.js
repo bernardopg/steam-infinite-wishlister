@@ -74,6 +74,8 @@ const CONFIG = {
     SKIP_DLC: "wl_skip_dlc",
     WISHLIST_COUNT: "wl_session_count",
     AGE_SKIP: "wl_age_skip",
+    STATS_WISHLISTED: "wl_stats_wishlisted",
+    STATS_SKIPPED: "wl_stats_skipped",
   },
 };
 
@@ -154,8 +156,19 @@ function initSettings() {
   State.settings.skipOwned = GM_getValue(CONFIG.STORAGE.SKIP_OWNED, true);
   State.settings.skipDLC = GM_getValue(CONFIG.STORAGE.SKIP_DLC, true);
   State.stats.wishlisted = parseInt(
-    sessionStorage.getItem(CONFIG.STORAGE.WISHLIST_COUNT) || "0"
+    GM_getValue(CONFIG.STORAGE.STATS_WISHLISTED, "0")
   );
+  State.stats.skipped = parseInt(
+    GM_getValue(CONFIG.STORAGE.STATS_SKIPPED, "0")
+  );
+}
+
+/**
+ * Salva os contadores de estatísticas no armazenamento persistente.
+ */
+function saveStats() {
+  GM_setValue(CONFIG.STORAGE.STATS_WISHLISTED, String(State.stats.wishlisted));
+  GM_setValue(CONFIG.STORAGE.STATS_SKIPPED, String(State.stats.skipped));
 }
 
 
@@ -621,6 +634,7 @@ const Loop = {
           log("Falha no age gate bypass, pulando jogo", 1);
           UI.updateStatus("Age gate falhou, pulando", "#ff7a7a");
           UI.incrementSkipped();
+          saveStats();
           await Queue.advance();
         }
         State.processing = false;
@@ -647,6 +661,7 @@ const Loop = {
         log(`Pulando: ${title} (${skipReason})`);
         UI.updateStatus(`Pulado: ${skipReason}`, "#aaa");
         UI.incrementSkipped();
+        saveStats();
       } else {
         // 3. Adicionar à wishlist com confirmação
         const added = await Wishlist.add();
@@ -654,6 +669,7 @@ const Loop = {
           log(`Adicionado: ${title}`);
           UI.updateStatus("Adicionado!", "#a1dd4a");
           UI.incrementWishlisted();
+          saveStats();
         } else {
           log(`Falha ao adicionar ${title} à wishlist`, 1);
           UI.updateStatus("Falha ao adicionar", "#ff7a7a");

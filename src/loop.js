@@ -1,7 +1,7 @@
 // ==== Loop Principal ====
 
 import CONFIG from "./config.js";
-import { State } from "./state.js";
+import { State, saveStats } from "./state.js";
 import Game from "./game.js";
 import Wishlist from "./wishlist.js";
 import Queue from "./queue.js";
@@ -57,6 +57,7 @@ const Loop = {
           log("Falha no age gate bypass, pulando jogo", 1);
           UI.updateStatus("Age gate falhou, pulando", "#ff7a7a");
           UI.incrementSkipped();
+          saveStats();
           await Queue.advance();
         }
         State.processing = false;
@@ -83,6 +84,7 @@ const Loop = {
         log(`Pulando: ${title} (${skipReason})`);
         UI.updateStatus(`Pulado: ${skipReason}`, "#aaa");
         UI.incrementSkipped();
+        saveStats();
       } else {
         // 3. Adicionar à wishlist com confirmação
         const added = await Wishlist.add();
@@ -90,6 +92,7 @@ const Loop = {
           log(`Adicionado: ${title}`);
           UI.updateStatus("Adicionado!", "#a1dd4a");
           UI.incrementWishlisted();
+          saveStats();
         } else {
           log(`Falha ao adicionar ${title} à wishlist`, 1);
           UI.updateStatus("Falha ao adicionar", "#ff7a7a");

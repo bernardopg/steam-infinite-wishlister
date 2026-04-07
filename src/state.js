@@ -33,8 +33,19 @@ function initSettings() {
   State.settings.skipOwned = GM_getValue(CONFIG.STORAGE.SKIP_OWNED, true);
   State.settings.skipDLC = GM_getValue(CONFIG.STORAGE.SKIP_DLC, true);
   State.stats.wishlisted = parseInt(
-    sessionStorage.getItem(CONFIG.STORAGE.WISHLIST_COUNT) || "0"
+    GM_getValue(CONFIG.STORAGE.STATS_WISHLISTED, "0")
+  );
+  State.stats.skipped = parseInt(
+    GM_getValue(CONFIG.STORAGE.STATS_SKIPPED, "0")
   );
 }
 
-export { State, initSettings };
+/**
+ * Salva os contadores de estatísticas no armazenamento persistente.
+ */
+function saveStats() {
+  GM_setValue(CONFIG.STORAGE.STATS_WISHLISTED, String(State.stats.wishlisted));
+  GM_setValue(CONFIG.STORAGE.STATS_SKIPPED, String(State.stats.skipped));
+}
+
+export { State, initSettings, saveStats };

@@ -48,6 +48,8 @@ const CONFIG = {
     SKIP_DLC: "wl_skip_dlc",
     WISHLIST_COUNT: "wl_session_count",
     AGE_SKIP: "wl_age_skip",
+    STATS_WISHLISTED: "wl_stats_wishlisted",
+    STATS_SKIPPED: "wl_stats_skipped",
   },
 };
 
