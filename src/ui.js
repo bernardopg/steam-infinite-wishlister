@@ -1,7 +1,7 @@
 // ==== Interface do Usuário ====
 
 import CONFIG from "./config.js";
-import State from "./state.js";
+import { State } from "./state.js";
 
 const UI = {
   create: () => {

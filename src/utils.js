@@ -22,8 +22,15 @@ const byText = (txt, root = document) => {
   );
 };
 
+/**
+ * Logger com níveis configuráveis
+ * @param {string} msg - Mensagem para log
+ * @param {number} level - Nível: 0=info (sempre visível), 1=debug, 2=verbose
+ */
 const log = (msg, level = 0) => {
-  console.log(`[Steam Wishlist] ${msg}`);
+  // Por padrão mostra tudo (pode ser controlado via configuração futura)
+  const prefix = level === 1 ? "[DEBUG]" : level === 2 ? "[VERBOSE]" : "";
+  console.log(`[Steam Wishlist]${prefix} ${msg}`);
 };
 
 export { wait, visible, pick, byText, log };

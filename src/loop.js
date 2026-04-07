@@ -1,7 +1,7 @@
 // ==== Loop Principal ====
 
 import CONFIG from "./config.js";
-import State from "./state.js";
+import { State } from "./state.js";
 import Game from "./game.js";
 import Wishlist from "./wishlist.js";
 import Queue from "./queue.js";
@@ -44,7 +44,7 @@ const Loop = {
     State.processing = true;
 
     try {
-      // 1. Verificar se a fila está vazia
+      // 1. Verificar se a fila está vazia e gerar nova fila
       if (Queue.isEmpty()) {
         UI.updateStatus("Fila vazia, reiniciando...", "#e4d00a");
         if (Queue.tryStart()) {
@@ -54,14 +54,7 @@ const Loop = {
         return;
       }
 
-      // 2. Tentar iniciar fila se necessário
-      if (Queue.tryStart()) {
-        await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
-        State.processing = false;
-        return;
-      }
-
-      // 3. Processar jogo atual
+      // 2. Processar jogo atual
       const title = Game.getTitle();
       UI.updateStatus(`Verificando: ${title}`, "#66c0f4");
 
