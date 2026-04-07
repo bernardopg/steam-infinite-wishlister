@@ -4,7 +4,7 @@
 
 ---
 
-## ✅ RESOLVIDOS (21/22 itens)
+## ✅ RESOLVIDOS (22/23 itens)
 
 ### Críticos (5/5)
 
@@ -40,16 +40,17 @@
 | M8 | **Sem tratamento de erros de rede** | ✅ Retry automático com maxRetries | 2026-04-07 |
 | M9 | **Contadores resetam a cada sessão** | ✅ saveStats() com GM_setValue para stats | 2026-04-07 |
 
-### Baixas (2/8)
+### Baixas (3/9)
 
 | # | Item | Status | Data |
 |---|------|--------|------|
 | L5 | **package.json minimalista** | ✅ type: module adicionado | 2026-04-07 |
 | L10 | **Contadores não persistiam** | ✅ saveStats() com GM_setValue para Adicionados/Pulados | 2026-04-07 |
+| L11 | **Botão "Concluir lista" não detectado** | ✅ Queue.clickFinish() com seletor .finish_queue_text | 2026-04-07 |
 
 ---
 
-## ⏳ PENDENTES (1/22 itens)
+## ⏳ PENDENTES (1/23 itens)
 
 ### Médias (1 restante)
 
@@ -77,9 +78,10 @@
 
 | Arquivo | Mudança |
 |---------|---------|
-| `src/config.js` | Adicionados STORAGE.STATS_WISHLISTED, STORAGE.STATS_SKIPPED |
+| `src/config.js` | Adicionados STORAGE.STATS_WISHLISTED, STORAGE.STATS_SKIPPED, SELECTORS.finishQueue |
 | `src/state.js` | Adicionado saveStats(), persistência de stats via GM_setValue |
-| `src/loop.js` | saveStats() chamado após cada ação (wishlist/skip/age gate fail) |
+| `src/loop.js` | saveStats() chamado após cada ação; clickFinish() antes de reiniciar fila |
+| `src/queue.js` | Adicionado clickFinish() para botão "Concluir lista" |
 
 ### Criados/Reescritos anteriormente:
 
@@ -91,7 +93,6 @@
 | `src/main.js` | Metadata block completo, @grant, @match, @run-at, menu commands |
 | `src/ui.js` | import { State } (named) |
 | `src/utils.js` | Logger com níveis (info, debug, verbose) |
-| `src/queue.js` | Gerenciamento de fila com tryStart, clickNext, isEmpty, advance |
 | `src/game.js` | Detecção de jogos: hasCards, isOwned, isDLC, getTitle, shouldSkip |
 | `package.json` | v2.2.0, type: module |
 | `version.json` | Novo arquivo — version checker |
@@ -123,6 +124,7 @@
 | Wishlist Confirmação | ✅ Implementado | Polling visual com timeout de 3s |
 | Retry de Rede | ✅ Implementado | maxRetries=2 com logging de erros |
 | Persistência Contadores | ✅ Implementado | saveStats() com GM_setValue para Adicionados/Pulados |
+| Concluir Lista | ✅ Implementado | clickFinish() detecta .finish_queue_text e clica automaticamente |
 | Testes | ❌ Inexistentes | Zero cobertura |
 | Documentação | ⚠️ Desatualizada | docs/ ainda reflete estrutura monolítica |
 | Size | 📉 Reduzido | ~500 linhas em módulos separados |
@@ -136,16 +138,17 @@
 2. **Testar confirmação de wishlist** — verificar polling detecta sucesso corretamente
 3. **Testar retry de rede** — simular falhas de conexão
 4. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
+5. **Testar "Concluir lista"** — verificar que clickFinish() clica no botão correto
 
 ### Prioridade Média (para qualidade):
-5. **Criar testes básicos** — smoke test do loop, testes unitários de utils
-6. **Atualizar documentação** — docs/pt-br/arquitetura.md para refletir módulos src/
-7. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
+6. **Criar testes básicos** — smoke test do loop, testes unitários de utils
+7. **Atualizar documentação** — docs/pt-br/arquitetura.md para refletir módulos src/
+8. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
 
 ### Prioridade Baixa (nice-to-have):
-8. **CI/CD** — GitHub Actions para validar build em PRs
-9. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
-10. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
+9. **CI/CD** — GitHub Actions para validar build em PRs
+10. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
+11. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
 
 ---
 
