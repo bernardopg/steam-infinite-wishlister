@@ -7,8 +7,9 @@
 // @author       bernardopg
 // @homepageURL  https://github.com/bernardopg/steam-infinite-wishlister
 // @supportURL   https://github.com/bernardopg/steam-infinite-wishlister/issues
-// @updateURL    https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js
-// @downloadURL  https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js
+// NOTA: @updateURL e @downloadURL removidos para evitar que o Tampermonkey
+//       desabilite o script automaticamente em caso de falha de rede/rate limit.
+//       Atualize manualmente quando necessário.
 // @match        *://store.steampowered.com/app/*
 // @match        *://store.steampowered.com/explore*
 // @match        *://store.steampowered.com/explore/
