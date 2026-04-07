@@ -6,14 +6,32 @@ import { pick, visible, wait, log } from "./utils.js";
 const Wishlist = {
   /**
    * Verifica se o jogo já está na wishlist
+   * Verifica múltiplos sinais: área de sucesso, botão ativo, ou botão de adicionar ausente
    * @returns {boolean}
    */
   isAlreadyAdded: () => {
-    const area = pick(CONFIG.SELECTORS.wishlistArea);
-    if (!area) return false;
+    // Verifica se a área de sucesso existe (ID muda após adicionar)
+    const successArea = document.querySelector("#add_to_wishlist_area_success");
+    if (successArea && visible(successArea)) return true;
 
-    const success = area.querySelector(CONFIG.SELECTORS.wishlistSuccess);
-    return (success && visible(success)) || area.classList.contains("queue_btn_active");
+    // Verifica se existe botão ativo na área original
+    const area = document.querySelector("#add_to_wishlist_area");
+    if (area) {
+      const btn = area.querySelector(".add_to_wishlist");
+      // Se o botão existe mas tem classe de ativo, já foi adicionado
+      if (btn && (btn.classList.contains("queue_btn_active") || btn.classList.contains("btn_wishlist_active"))) {
+        return true;
+      }
+      // Se o botão de adicionar não existe mas a área existe, pode ter sido convertido
+      if (!btn) {
+        const success = area.querySelector(".add_to_wishlist_area_success");
+        if (success && visible(success)) return true;
+      }
+    }
+
+    // Fallback: verifica botão genérico ativo
+    const activeBtn = document.querySelector(".queue_btn_active, .btn_wishlist_active");
+    return activeBtn && visible(activeBtn);
   },
 
   /**

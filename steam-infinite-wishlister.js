@@ -46,10 +46,12 @@ const CONFIG = {
     ],
 
     // Wishlist
-    wishlistArea: "#add_to_wishlist_area, .queue_wishlist_ctn",
+    // Após adicionar, #add_to_wishlist_area muda para #add_to_wishlist_area_success
+    wishlistArea: "#add_to_wishlist_area, #add_to_wishlist_area_success, .queue_wishlist_ctn",
     // O botão de wishlist É o próprio .add_to_wishlist (não há .btn_addtocart dentro)
     wishlistButton: ".add_to_wishlist, .queue_wishlist_button",
-    wishlistSuccess: ".add_to_wishlist_area_success, .queue_btn_active",
+    // Sucesso: a div muda o ID e o botão ganha classe queue_btn_active
+    wishlistSuccess: "#add_to_wishlist_area_success, .queue_btn_active, .btn_wishlist_active",
 
     // Navegação
     nextButton: ".btn_next_in_queue_trigger, .btn_next_in_queue",
@@ -232,14 +234,32 @@ const Game = {
 const Wishlist = {
   /**
    * Verifica se o jogo já está na wishlist
+   * Verifica múltiplos sinais: área de sucesso, botão ativo, ou botão de adicionar ausente
    * @returns {boolean}
    */
   isAlreadyAdded: () => {
-    const area = pick(CONFIG.SELECTORS.wishlistArea);
-    if (!area) return false;
+    // Verifica se a área de sucesso existe (ID muda após adicionar)
+    const successArea = document.querySelector("#add_to_wishlist_area_success");
+    if (successArea && visible(successArea)) return true;
 
-    const success = area.querySelector(CONFIG.SELECTORS.wishlistSuccess);
-    return (success && visible(success)) || area.classList.contains("queue_btn_active");
+    // Verifica se existe botão ativo na área original
+    const area = document.querySelector("#add_to_wishlist_area");
+    if (area) {
+      const btn = area.querySelector(".add_to_wishlist");
+      // Se o botão existe mas tem classe de ativo, já foi adicionado
+      if (btn && (btn.classList.contains("queue_btn_active") || btn.classList.contains("btn_wishlist_active"))) {
+        return true;
+      }
+      // Se o botão de adicionar não existe mas a área existe, pode ter sido convertido
+      if (!btn) {
+        const success = area.querySelector(".add_to_wishlist_area_success");
+        if (success && visible(success)) return true;
+      }
+    }
+
+    // Fallback: verifica botão genérico ativo
+    const activeBtn = document.querySelector(".queue_btn_active, .btn_wishlist_active");
+    return activeBtn && visible(activeBtn);
   },
 
   /**

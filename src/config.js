@@ -19,10 +19,12 @@ const CONFIG = {
     ],
 
     // Wishlist
-    wishlistArea: "#add_to_wishlist_area, .queue_wishlist_ctn",
+    // Após adicionar, #add_to_wishlist_area muda para #add_to_wishlist_area_success
+    wishlistArea: "#add_to_wishlist_area, #add_to_wishlist_area_success, .queue_wishlist_ctn",
     // O botão de wishlist É o próprio .add_to_wishlist (não há .btn_addtocart dentro)
     wishlistButton: ".add_to_wishlist, .queue_wishlist_button",
-    wishlistSuccess: ".add_to_wishlist_area_success, .queue_btn_active",
+    // Sucesso: a div muda o ID e o botão ganha classe queue_btn_active
+    wishlistSuccess: "#add_to_wishlist_area_success, .queue_btn_active, .btn_wishlist_active",
 
     // Navegação
     nextButton: ".btn_next_in_queue_trigger, .btn_next_in_queue",
