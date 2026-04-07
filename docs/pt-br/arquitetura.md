@@ -2,246 +2,259 @@
 
 ## Visão Geral
 
-O Steam Infinite Wishlister é organizado em módulos modulares que trabalham juntos para automatizar a Fila de Descobertas da Steam. O script é desenvolvido como um userscript Tampermonkey com clara separação de responsabilidades.
+O Steam Infinite Wishlister é um userscript Tampermonkey modular que automatiza a Fila de Descobertas da Steam. O projeto usa uma arquitetura de módulos ES6 concatenados em um único arquivo `.user.js` durante o build.
 
-## Estrutura dos Módulos
+## Estrutura do Projeto
 
 ```
-CONFIG (Configuração)
-   ↓
-State (Estado Global)
-   ↓
-Logger → UI → SettingsManager
-   ↓              ↓
-QueueNavigation ← QueueProcessor → GameInfoUtils
-   ↓              ↓
-LoopController ← ErrorHandler
+steam-infinite-wishlister/
+├── src/                          # Código fonte (módulos ES6)
+│   ├── config.js                 # Configurações centralizadas
+│   ├── state.js                  # Estado global e persistência
+│   ├── utils.js                  # Utilitários (DOM, logging, wait)
+│   ├── ui.js                     # Interface/painel flutuante
+│   ├── game.js                   # Detecção de tipo de jogo
+│   ├── queue.js                  # Gerenciamento da fila
+│   ├── wishlist.js               # Adição à wishlist com confirmação
+│   ├── ageSkip.js                # Bypass de verificação de idade
+│   ├── loop.js                   # Loop principal de automação
+│   └── main.js                   # Ponto de entrada (metadata + init)
+├── scripts/
+│   └── build-userscript.mjs      # Build: concatena módulos em .user.js
+├── docs/                         # Documentação
+│   ├── README.md
+│   ├── en/                       # Documentação em inglês
+│   └── pt-br/                    # Documentação em português
+├── SteamInfiniteWishlister.user.js  # Gerado pelo build
+├── steam-infinite-wishlister.js     # Cópia do .user.js
+├── package.json
+├── version.json
+└── TODO.md                       # Lista de tarefas e melhorias
+```
+
+## Build
+
+O build concatena todos os módulos `src/` em ordem definida no script `build-userscript.mjs`, removendo os `import`/`export` e gerando um `.user.js` válido para Tampermonkey.
+
+```bash
+npm run build    # Gera SteamInfiniteWishlister.user.js
+npm run check    # Verifica integridade do build
 ```
 
 ## Módulos
 
-### CONFIG
+### CONFIG (`src/config.js`)
 
 Configurações centralizadas e constantes.
 
 | Seção | Propósito |
 |-------|-----------|
-| `TIMING` | Delays e timeouts para automação |
-| `SELECTORS` | Seletores CSS/DOM para elementos da Steam |
-| `STORAGE_KEYS` | Constantes para chaves de armazenamento |
-| `CURRENT_VERSION` | Versão do script |
+| `VERSION` | Versão atual do script |
+| `TIMING` | Delays e timeouts (LOOP_MIN, LOOP_MAX, ACTION_DELAY, QUEUE_GEN_DELAY) |
+| `SELECTORS` | Seletores CSS para elementos da Steam |
+| `STORAGE` | Chaves para GM_getValue/GM_setValue |
 
-### State
+#### SELECTORS principais
 
-Gerenciamento de estado global da aplicação.
+| Seletor | Propósito |
+|---------|-----------|
+| `queueButtons` | Botões para iniciar fila |
+| `wishlistArea` | Área de wishlist do jogo |
+| `wishlistButton` | Botão de adicionar à wishlist |
+| `wishlistSuccess` | Indicador visual de sucesso |
+| `nextButton` | Botão "Próximo" da fila |
+| `queueEmpty` | Indicador de fila vazia |
+| `finishQueue` | Botão "Concluir lista" (.finish_queue_text) |
+| `ageGate` | Verificação de idade |
+| `ageConfirm` | Campo de ano do age gate |
+| `ageConfirmBtn` | Botão de confirmar age gate |
+| `tradingCards` | Link para trading cards |
+| `owned` | Indicador de jogo possuído |
+| `dlc` | Indicador de DLC |
+| `title` | Título do jogo |
+
+#### STORAGE
+
+| Chave | Propósito |
+|-------|-----------|
+| `AUTO_START` | Auto-iniciar loop |
+| `REQUIRE_CARDS` | Exigir cartas de troca |
+| `SKIP_OWNED` | Pular jogos possuídos |
+| `SKIP_DLC` | Pular DLCs |
+| `AGE_SKIP` | Habilitar age skip |
+| `STATS_WISHLISTED` | Contador persistente de adicionados |
+| `STATS_SKIPPED` | Contador persistente de pulados |
+
+### State (`src/state.js`)
+
+Gerenciamento de estado global e persistência.
 
 | Propriedade | Tipo | Descrição |
 |-------------|------|-----------|
-| `loop.state` | string | Estado atual: "Stopped", "Running", "Paused" |
-| `loop.timeoutId` | number | ID do setTimeout para limpeza |
-| `loop.isProcessing` | boolean | Se está processando um item |
-| `loop.failedQueueRestarts` | number | Falhas consecutivas de reinício |
-| `settings.*` | boolean | Valores de configuração do usuário |
-| `stats.*` | number | Contadores de estatísticas da sessão |
-| `ui.elements` | object | Referências de elementos DOM |
+| `running` | boolean | Se o loop está ativo |
+| `processing` | boolean | Se está processando um item |
+| `settings.*` | boolean | Configurações do usuário |
+| `stats.wishlisted` | number | Contador de adicionados (persistente) |
+| `stats.skipped` | number | Contador de pulados (persistente) |
+| `ui` | object | Referências de elementos DOM |
 
-### Logger
+#### Funções
 
-Sistema de logging com níveis configuráveis.
+| Função | Propósito |
+|--------|-----------|
+| `initSettings()` | Inicializa settings via GM_getValue (chamado no main.js) |
+| `saveStats()` | Salva contadores via GM_setValue (chamado após cada ação) |
 
-| Nível | Valor | Uso |
-|-------|-------|-----|
-| INFO | 0 | Informações importantes (sempre exibido) |
-| DEBUG | 1 | Detalhes de depuração |
-| VERBOSE | 2 | Tudo incluindo rastreamento |
+### Utils (`src/utils.js`)
 
-### UI
+Utilitários gerais.
+
+| Função | Propósito |
+|--------|-----------|
+| `pick(selector)` | Query selector simplificado |
+| `visible(el)` | Verifica se elemento está visível |
+| `byText(text)` | Busca elemento por texto |
+| `wait(ms)` | Promise-based setTimeout |
+| `log(msg, level)` | Logger com níveis (0=info, 1=debug, 2=verbose) |
+
+### UI (`src/ui.js`)
 
 Gerencia o painel flutuante e interações com o usuário.
 
 | Função | Propósito |
 |--------|-----------|
-| `updateStatusText(msg, type)` | Atualizar exibição de status |
-| `incrementWishlistCounter()` | Incrementar contador de wishlist |
-| `incrementSkippedCounter()` | Incrementar contador de pulados |
-| `addToActivityLog(action, item, reason)` | Adicionar ao log de atividades |
-| `updateManualButtonStates()` | Atualizar estados dos botões manuais |
-| `addControls()` | Criar toda a interface |
-| `updateUI()` | Sincronizar UI com State |
-| `toggleMinimizeUI()` | Minimizar/restaurar painel |
-| `updateVersionInfo(latest, url)` | Atualizar exibição de versão |
+| `create()` | Criar painel flutuante completo |
+| `updateStatus(msg, color)` | Atualizar texto de status |
+| `setRunning(bool)` | Atualizar estado dos botões start/stop |
+| `incrementWishlisted()` | Incrementar contador de adicionados |
+| `incrementSkipped()` | Incrementar contador de pulados |
 
-### SettingsManager
-
-Gerenciamento persistente de configurações.
-
-| Função | Propósito |
-|--------|-----------|
-| `updateSetting(key, value)` | Atualizar valor de configuração |
-| `toggleSetting(key, current)` | Alternar configuração booleana |
-
-### AgeVerificationBypass
-
-Bypass automático de verificação de idade para conteúdo adulto.
-
-| Método | Propósito |
-|--------|-----------|
-| `init()` | Inicializar todos os mecanismos de bypass |
-| `setCookies()` | Definir cookies de verificação |
-| `handleStoreSite()` | Tratar páginas da loja |
-| `handleCommunitySite()` | Tratar páginas da comunidade |
-
-### DOMCache
-
-Otimização de performance através de cache de elementos.
-
-| Método | Propósito |
-|--------|-----------|
-| `get(key, selector)` | Obter elemento com cache |
-| `clear(key?)` | Limpar cache (todo ou específico) |
-| `cacheSelectors(map)` | Cache de múltiplos elementos |
-
-### GameInfoUtils
+### Game (`src/game.js`)
 
 Detecção e análise de tipo de jogo.
 
 | Método | Retorno | Propósito |
 |--------|---------|-----------|
-| `getAppType()` | string | Detectar tipo do app (Jogo, DLC, Demo, etc.) |
-| `checkIfNonGame()` | string|null | Deve pular como não-jogo? |
-| `clearCache()` | void | Limpar cache de detecção |
+| `getTitle()` | string | Obter título do jogo |
+| `hasCards()` | boolean | Verifica se tem cartas de troca |
+| `isOwned()` | boolean | Verifica se já possui o jogo |
+| `isDLC()` | boolean | Verifica se é DLC |
+| `shouldSkip(settings)` | string\|null | Motivo do skip ou null |
 
-### QueueNavigation
+### Queue (`src/queue.js`)
 
-Controles de navegação da fila de descobertas.
-
-| Método | Retorno | Propósito |
-|--------|---------|-----------|
-| `advanceQueue()` | string | Avançar para próximo item |
-| `ensureQueueVisible()` | void | Garantir que fila está visível |
-| `generateNewQueue()` | boolean | Gerar nova fila |
-
-Estratégia de avanço tenta: Botão Next → Botão Ignore → Submit do formulário → Falha
-
-### ErrorHandler
-
-Tratamento centralizado de erros.
-
-| Método | Propósito |
-|--------|-----------|
-| `handleError(error, context, stopLoop)` | Tratar e registrar erros |
-| `safeAsync(operation, context)` | Wrapper seguro para async |
-| `validateDOMState()` | Validar estado do DOM |
-
-### QueueProcessor
-
-Engine central de processamento de itens.
+Gerenciamento da fila de descobertas.
 
 | Método | Retorno | Propósito |
 |--------|---------|-----------|
-| `checkQueueStatusAndHandle()` | boolean | Verificar fila e reagir |
-| `processCurrentGameItem(manual)` | void | Processar item atual |
-| `confirmWishlistSuccess()` | Promise | Confirmar adição à wishlist |
-| `processOnce()` | void | Processamento manual único |
-| `skipItem()` | void | Pular item manualmente |
+| `tryStart()` | boolean | Tenta iniciar nova fila |
+| `clickNext()` | boolean | Clica em "Próximo" |
+| `clickFinish()` | boolean | Clica em "Concluir lista" |
+| `isEmpty()` | boolean | Verifica se fila está vazia |
+| `advance()` | Promise<boolean> | Avança para próximo item |
 
-### LoopController
+### Wishlist (`src/wishlist.js`)
 
-Controlador do loop principal de automação.
+Adição à wishlist com confirmação e retry.
+
+| Método | Retorno | Propósito |
+|--------|---------|-----------|
+| `isAlreadyAdded()` | boolean | Verifica se já está na wishlist |
+| `waitForConfirmation(maxWait)` | Promise<boolean> | Aguarda confirmação visual (polling) |
+| `add(maxRetries)` | Promise<boolean> | Adiciona à wishlist com retry |
+
+### AgeSkip (`src/ageSkip.js`)
+
+Bypass automático de verificação de idade.
+
+| Método | Retorno | Propósito |
+|--------|---------|-----------|
+| `isActive()` | boolean | Verifica se age gate está visível |
+| `bypass()` | Promise<boolean> | Preenche ano (1990) e confirma |
+| `waitForDismiss(timeout)` | Promise<boolean> | Aguarda age gate desaparecer |
+
+### Loop (`src/loop.js`)
+
+Loop principal de automação.
 
 | Método | Propósito |
 |--------|-----------|
-| `startLoop()` | Iniciar automação |
-| `pauseLoop()` | Pausar automação |
-| `stopLoop(keepSettings)` | Parar completamente |
+| `start()` | Iniciar automação |
+| `stop()` | Parar automação |
+| `run()` | Loop contínuo com delay variável |
+| `step()` | Processar um item da fila |
 
-### VersionChecker
+#### Fluxo do step()
 
-Sistema de verificação de atualizações.
-
-| Método | Propósito |
-|--------|-----------|
-| `checkForUpdates()` | Verificar e notificar atualizações |
+```
+1. Verificar age gate → se ativo, tentar bypass
+2. Verificar se fila vazia:
+   ├─ Tentar "Concluir lista" (clickFinish)
+   └─ Se falhar, tentar gerar nova fila (tryStart)
+3. Obter título do jogo
+4. Verificar condições de skip (possuído, DLC, sem cartas)
+5. Se não pular: adicionar à wishlist com confirmação
+6. Avançar para próximo item
+```
 
 ## Fluxo de Execução
 
 ### Inicialização
 
 ```
-1. Mensagem de inicialização do Logger
-2. UI.createControls() - Construir interface
-3. GM_registerMenuCommand() - Registrar itens de menu
-4. VersionChecker.checkForUpdates() - Verificar atualizações
-5. AgeVerificationBypass.init() - Configurar bypass
-6. Se autoStart ativo → LoopController.startLoop()
+1. initSettings() — carrega configurações via GM_getValue
+2. UI.create() — constrói painel flutuante
+3. Conectar botões start/stop ao Loop
+4. Registrar atalhos de teclado (Ctrl+Shift+S, Ctrl+Shift+X, Esc)
+5. Registrar comandos de menu Tampermonkey
+6. Se autoStart ativo → Loop.start() após 1.5s
 ```
 
 ### Loop Principal
 
 ```
-startLoop()
-   ↓
-mainLoop()
-   ↓
-checkQueueStatusAndHandle()
-   ├─ Fila vazia? → generateNewQueue()
-   ├─ Fila oculta? → generateNewQueue()
-   └─ OK? → continuar
-   ↓
-processCurrentGameItem()
-   ├─ Obter info do jogo
-   ├─ Verificar condições de skip
-   ├─ Wishlist ou pular
-   └─ advanceQueue()
-   ↓
-setTimeout(mainLoop, CHECK_INTERVAL)
-   ↓
+Loop.start()
+    ↓
+Loop.run() — while(running)
+    ↓
+Loop.step()
+    ├─ Age gate ativo? → bypass() → se falhar, pular
+    ├─ Fila vazia?
+    │   ├─ clickFinish() — tenta "Concluir lista"
+    │   └─ tryStart() — tenta gerar nova fila
+    ├─ Processar jogo:
+    │   ├─ shouldSkip() — verifica condições
+    │   ├─ Se pular: incrementSkipped() + saveStats()
+    │   └─ Se não: Wishlist.add() → incrementWishlisted() + saveStats()
+    └─ advance() — próximo item
+    ↓
+wait(jitter) — delay variável (700-1200ms)
+    ↓
 (repete)
-```
-
-### Processamento de Item
-
-```
-processCurrentGameItem()
-   ↓
-1. Obter título e informações
-   ↓
-2. Verificar Condições de Skip:
-   │
-   ├─ Possui? ──SIM──→ Pular
-   │    NÃO
-   │    ↓
-   ├─ Não-jogo? ──SIM──→ Pular
-   │    NÃO
-   │    ↓
-   └─ Sem cartas? ──SIM──→ Pular
-        NÃO
-        ↓
-3. Adicionar à Wishlist
-   ↓
-4. advanceQueue()
 ```
 
 ## Dependências entre Módulos
 
 ```
-CONFIG (usado por todos)
-   ↓
-State (usado por todos)
-   ↓
-Logger (usado por todos)
-   ↓
-UI ←─────────────── SettingsManager
-   ↓                       ↓
-DOMCache ←─ GameInfoUtils  │
-   ↓             ↓          │
-QueueNavigation ←┘          │
-   ↓                        │
-ErrorHandler ←──────────────┘
-   ↓
-QueueProcessor (usa tudo)
-   ↓
-LoopController
+config.js (usado por todos)
+    ↓
+state.js (usado por todos)
+    ↓
+utils.js (usado por todos)
+    ↓
+ui.js ←── state.js, utils.js
+    ↓
+game.js ←── utils.js
+    ↓
+queue.js ←── utils.js, config.js
+    ↓
+wishlist.js ←── utils.js, config.js
+    ↓
+ageSkip.js ←── utils.js, config.js
+    ↓
+loop.js ←── todos acima
+    ↓
+main.js ←── config, state, ui, loop, utils
 ```
 
 ## Guia de Manutenção
@@ -250,29 +263,23 @@ LoopController
 
 ```javascript
 // 1. Adicionar em CONFIG.SELECTORS
-CONFIG.SELECTORS.novoGrupo = {
-  elemento: ".meu-seletor"
-}
+CONFIG.SELECTORS.finishQueue = ".finish_queue_text, .btn_finish_queue"
 
 // 2. Usar no código
-const el = document.querySelector(CONFIG.SELECTORS.novoGrupo.elemento)
+const btn = pick(CONFIG.SELECTORS.finishQueue)
 ```
 
 ### Adicionar Nova Configuração
 
 ```javascript
-// 1. Adicionar chave em CONFIG.STORAGE_KEYS
-CONFIG.STORAGE_KEYS.NOVA_CONFIG = "minhaNovaConfig"
+// 1. Adicionar chave em CONFIG.STORAGE
+CONFIG.STORAGE.MINHA_NOVA = "wl_minha_nova"
 
-// 2. Inicializar em State.settings
-settings: {
-  minhaNovaConfig: GM_getValue(CONFIG.STORAGE_KEYS.NOVA_CONFIG, valorPadrao)
-}
+// 2. Adicionar default em State.settings (state.js)
+State.settings.minhaNova = false
 
-// 3. Adicionar no keyMap do SettingsManager
-keyMap[CONFIG.STORAGE_KEYS.NOVA_CONFIG] = "minhaNovaConfig"
-
-// 4. Adicionar checkbox na UI se necessário
+// 3. Inicializar em initSettings()
+State.settings.minhaNova = GM_getValue(CONFIG.STORAGE.MINHA_NOVA, false)
 ```
 
 ### Alterar Timing
@@ -282,28 +289,26 @@ keyMap[CONFIG.STORAGE_KEYS.NOVA_CONFIG] = "minhaNovaConfig"
 CONFIG.TIMING.MEU_NOVO_DELAY = 2000
 
 // Usar no código
-await new Promise(r => setTimeout(r, CONFIG.TIMING.MEU_NOVO_DELAY))
+await wait(CONFIG.TIMING.MEU_NOVO_DELAY)
 ```
 
 ### Adicionar Nova Condição de Skip
 
 ```javascript
-// Em QueueProcessor.processCurrentGameItem() ou GameInfoUtils.checkIfNonGame()
-
+// Em Game.shouldSkip()
 if (minhaCondicao) {
-  skipReason = "Meu motivo de skip"
-  Logger.log(` -> Pulando: ${skipReason}`, 1)
+  return "Meu motivo de skip"
 }
 ```
 
 ## Dicas
 
-1. **Sempre use Logger.log()** para depuração
-2. **DOMCache** melhora performance - use!
-3. **ErrorHandler.safeAsync()** para operações arriscadas
-4. **State** é a fonte da verdade - consulte sempre
-5. **UI.updateUI()** sincroniza tudo - chame após mudanças de estado
-6. **CONFIG** centraliza tudo - prefira usar constantes
+1. **Sempre use `log()`** para depuração em vez de `console.log()`
+2. **`pick()` e `visible()`** são os utilitários principais para DOM
+3. **`saveStats()`** deve ser chamado após cada ação que muda contadores
+4. **State** é a fonte da verdade — consulte sempre
+5. **CONFIG** centraliza tudo — prefira usar constantes em vez de strings hardcoded
+6. **O build é necessário** após qualquer mudança em `src/`
 
 ---
 
