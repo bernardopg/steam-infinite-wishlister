@@ -27,7 +27,8 @@ const CONFIG = {
     nextButton: ".btn_next_in_queue_trigger, .btn_next_in_queue",
 
     // Informações do jogo
-    tradingCards: 'a[href*="/tradingcards/"]',
+    // O link de cartas usa category2=29 (Trading Cards) no href
+    tradingCards: 'a[href*="category2=29"], a[href*="/tradingcards/"]',
     owned: ".game_area_already_owned",
     dlc: ".game_area_dlc_bubble",
     title: ".apphub_AppName, .queue_item_title",
