@@ -4,9 +4,9 @@
 
 ---
 
-## ✅ RESOLVIDOS (24/25 itens)
+## ✅ RESOLVIDOS (25/26 itens)
 
-### Críticos (6/6)
+### Críticos (7/7)
 
 | # | Item | Status | Data |
 |---|------|--------|------|
@@ -16,6 +16,7 @@
 | C4 | **loop_simples_completo.js morto** | ✅ Arquivo removido | 2026-04-07 |
 | C5 | **GM_getValue no top-level** | ✅ Movido para initSettings() | 2026-04-07 |
 | C6 | **Script sumindo do Tampermonkey** | ✅ Removidos @updateURL/@downloadURL (auto-update falhando) | 2026-04-07 |
+| C7 | **Seletor de cartas incorreto** | ✅ Adicionado category2=29 para detectar Trading Cards | 2026-04-07 |
 
 ### Importantes (8/8)
 
@@ -52,7 +53,7 @@
 
 ---
 
-## ⏳ PENDENTES (1/25 itens)
+## ⏳ PENDENTES (1/26 itens)
 
 ### Médias (1 restante)
 
@@ -79,8 +80,8 @@
 
 | Arquivo | Mudança |
 |---------|---------|
+| `src/config.js` | Corrigido seletor tradingCards: `a[href*="category2=29"], a[href*="/tradingcards/"]` |
 | `src/main.js` | Removidos @updateURL/@downloadURL para prevenir auto-uninstall |
-| `src/config.js` | Adicionados STORAGE.STATS_WISHLISTED, STORAGE.STATS_SKIPPED, SELECTORS.finishQueue |
 | `src/state.js` | Adicionado saveStats(), persistência de stats via GM_setValue |
 | `src/loop.js` | saveStats() chamado após cada ação; clickFinish() antes de reiniciar fila |
 | `src/queue.js` | Adicionado clickFinish() para botão "Concluir lista" |
@@ -127,6 +128,7 @@
 | Retry de Rede | ✅ Implementado | maxRetries=2 com logging de erros |
 | Persistência Contadores | ✅ Implementado | saveStats() com GM_setValue para Adicionados/Pulados |
 | Concluir Lista | ✅ Implementado | clickFinish() detecta .finish_queue_text e clica automaticamente |
+| Detecção de Cartas | ✅ Corrigido | Seletor category2=29 detecta Trading Cards corretamente |
 | Documentação | ✅ Atualizada | docs/pt-br/arquitetura.md reescrita com estrutura modular |
 | Estabilidade | ✅ Corrigido | Script não desaparece mais do Tampermonkey |
 | Testes | ❌ Inexistentes | Zero cobertura |
@@ -137,22 +139,23 @@
 ## 🚀 Próximos Passos Recomendados
 
 ### Prioridade Alta (para próxima release):
-1. **Rodar build e testar no Tampermonkey** — verificar se age skip funciona na prática
-2. **Testar confirmação de wishlist** — verificar polling detecta sucesso corretamente
-3. **Testar retry de rede** — simular falhas de conexão
-4. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
-5. **Testar "Concluir lista"** — verificar que clickFinish() clica no botão correto
-6. **Verificar estabilidade** — confirmar que script não desaparece após correção
+1. **Testar detecção de cartas** — verificar que Flotsam e outros jogos com cartas são detectados corretamente
+2. **Rodar build e testar no Tampermonkey** — verificar se age skip funciona na prática
+3. **Testar confirmação de wishlist** — verificar polling detecta sucesso corretamente
+4. **Testar retry de rede** — simular falhas de conexão
+5. **Verificar persistência dos contadores** — confirmar que Adicionados/Pulados não resetam
+6. **Testar "Concluir lista"** — verificar que clickFinish() clica no botão correto
+7. **Verificar estabilidade** — confirmar que script não desaparece após correção
 
 ### Prioridade Média (para qualidade):
-7. **Criar testes básicos** — smoke test do loop, testes unitários de utils
-8. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
+8. **Criar testes básicos** — smoke test do loop, testes unitários de utils
+9. **Adicionar log de atividades** — painel com histórico de ações (adicionados/pulados)
 
 ### Prioridade Baixa (nice-to-have):
-9. **CI/CD** — GitHub Actions para validar build em PRs
-10. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
-11. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
-12. **Seletores resilientes** — sistema de fallback para seletores que mudam
+10. **CI/CD** — GitHub Actions para validar build em PRs
+11. **UI melhorada** — minimizar painel, collapse de opções, log scrollable
+12. **Atalhos de teclado configuráveis** — permitir usuário definir hotkeys
+13. **Seletores resilientes** — sistema de fallback para seletores que mudam
 
 ---
 
