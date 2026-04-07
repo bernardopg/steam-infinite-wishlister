@@ -516,11 +516,6 @@ const Loop = {
 // === End: src/loop.js ===
 
 // === Begin: src/main.js (body) ===
-import CONFIG from "./config.js";
-import { State, initSettings } from "./state.js";
-import UI from "./ui.js";
-import Loop from "./loop.js";
-import { log } from "./utils.js";
 
 (function () {
   "use strict";

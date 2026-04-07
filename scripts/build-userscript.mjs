@@ -82,9 +82,10 @@ async function build() {
   }
 
   const metadata = extractMetadata(mainFile.code);
-  const mainBody = extractBody(mainFile.code);
+  // Aplica stripImports no corpo do main.js também (imports após metadata block)
+  const mainBody = stripImports(extractBody(mainFile.code));
 
-  // Monta o corpo final: todos os módulos (sem imports) + corpo do main
+  // Monta o corpo final: todos os módulos (sem imports/exports) + corpo do main
   const bodies = [
     ...files.slice(0, -1).map((f) => `// === Begin: ${f.module} ===\n${stripImports(f.code)}\n// === End: ${f.module} ===`),
     `// === Begin: ${mainFile.module} (body) ===\n${mainBody}\n// === End: ${mainFile.module} ===`,
@@ -141,7 +142,7 @@ async function check() {
   );
 
   const metadata = extractMetadata(files[files.length - 1].code);
-  const mainBody = extractBody(files[files.length - 1].code);
+  const mainBody = stripImports(extractBody(files[files.length - 1].code));
 
   const bodies = [
     ...files.slice(0, -1).map((f) => `// === Begin: ${f.module} ===\n${stripImports(f.code)}\n// === End: ${f.module} ===`),
