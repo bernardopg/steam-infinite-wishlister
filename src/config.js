@@ -34,6 +34,11 @@ const CONFIG = {
 
     // Fila vazia
     queueEmpty: ".discover_queue_empty",
+
+    // Age Gate (verificação de idade)
+    ageGate: "#age_gate, .age_gate_ctn, [class*='agegate']",
+    ageConfirm: "#age_year, #ageGateYear, input[name='age_year'], input[name='ageYear']",
+    ageConfirmBtn: ".btn_continue, #age_gate_btn, button[type='submit'][class*='continue']",
   },
 
   STORAGE: {
@@ -42,6 +47,7 @@ const CONFIG = {
     SKIP_OWNED: "wl_skip_owned",
     SKIP_DLC: "wl_skip_dlc",
     WISHLIST_COUNT: "wl_session_count",
+    AGE_SKIP: "wl_age_skip",
   },
 };
 

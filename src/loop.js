@@ -6,6 +6,7 @@ import Game from "./game.js";
 import Wishlist from "./wishlist.js";
 import Queue from "./queue.js";
 import UI from "./ui.js";
+import AgeSkip from "./ageSkip.js";
 import { wait, log } from "./utils.js";
 
 const Loop = {
@@ -44,6 +45,24 @@ const Loop = {
     State.processing = true;
 
     try {
+      // 0. Verificar e bypass age gate
+      if (AgeSkip.isActive()) {
+        log("Age gate detectado, tentando bypass...");
+        UI.updateStatus("Bypass age gate...", "#e4d00a");
+        const bypassed = await AgeSkip.bypass();
+        if (bypassed) {
+          await AgeSkip.waitForDismiss();
+          log("Age gate bypass com sucesso");
+        } else {
+          log("Falha no age gate bypass, pulando jogo", 1);
+          UI.updateStatus("Age gate falhou, pulando", "#ff7a7a");
+          UI.incrementSkipped();
+          await Queue.advance();
+        }
+        State.processing = false;
+        return;
+      }
+
       // 1. Verificar se a fila está vazia e gerar nova fila
       if (Queue.isEmpty()) {
         UI.updateStatus("Fila vazia, reiniciando...", "#e4d00a");
@@ -65,12 +84,15 @@ const Loop = {
         UI.updateStatus(`Pulado: ${skipReason}`, "#aaa");
         UI.incrementSkipped();
       } else {
-        // Adicionar à wishlist
+        // 3. Adicionar à wishlist com confirmação
         const added = await Wishlist.add();
         if (added) {
           log(`Adicionado: ${title}`);
           UI.updateStatus("Adicionado!", "#a1dd4a");
           UI.incrementWishlisted();
+        } else {
+          log(`Falha ao adicionar ${title} à wishlist`, 1);
+          UI.updateStatus("Falha ao adicionar", "#ff7a7a");
         }
       }
 

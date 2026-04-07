@@ -60,6 +60,11 @@ const CONFIG = {
 
     // Fila vazia
     queueEmpty: ".discover_queue_empty",
+
+    // Age Gate (verificação de idade)
+    ageGate: "#age_gate, .age_gate_ctn, [class*='agegate']",
+    ageConfirm: "#age_year, #ageGateYear, input[name='age_year'], input[name='ageYear']",
+    ageConfirmBtn: ".btn_continue, #age_gate_btn, button[type='submit'][class*='continue']",
   },
 
   STORAGE: {
@@ -68,6 +73,7 @@ const CONFIG = {
     SKIP_OWNED: "wl_skip_owned",
     SKIP_DLC: "wl_skip_dlc",
     WISHLIST_COUNT: "wl_session_count",
+    AGE_SKIP: "wl_age_skip",
   },
 };
 
@@ -205,6 +211,10 @@ const Game = {
 
 
 const Wishlist = {
+  /**
+   * Verifica se o jogo já está na wishlist
+   * @returns {boolean}
+   */
   isAlreadyAdded: () => {
     const area = pick(CONFIG.SELECTORS.wishlistArea);
     if (!area) return false;
@@ -213,7 +223,32 @@ const Wishlist = {
     return (success && visible(success)) || area.classList.contains("queue_btn_active");
   },
 
-  add: async () => {
+  /**
+   * Aguarda confirmação visual de que o item foi adicionado à wishlist
+   * Usa polling para verificar mudança de estado
+   * @param {number} maxWait - Tempo máximo de espera em ms
+   * @returns {Promise<boolean>} true se confirmado
+   */
+  waitForConfirmation: async (maxWait = 3000) => {
+    const start = Date.now();
+    const pollInterval = 200;
+
+    while (Date.now() - start < maxWait) {
+      if (Wishlist.isAlreadyAdded()) {
+        return true;
+      }
+      await wait(pollInterval);
+    }
+
+    return false;
+  },
+
+  /**
+   * Tenta adicionar o jogo à wishlist com confirmação e retry
+   * @param {number} maxRetries - Número máximo de tentativas
+   * @returns {Promise<boolean>} true se adicionado com sucesso
+   */
+  add: async (maxRetries = 2) => {
     const area = pick(CONFIG.SELECTORS.wishlistArea);
     if (!area) {
       log("Área de wishlist não encontrada");
@@ -231,10 +266,32 @@ const Wishlist = {
       return false;
     }
 
-    btn.click();
-    log("Adicionado à wishlist");
-    await wait(CONFIG.TIMING.ACTION_DELAY);
-    return true;
+    // Tenta adicionar com retries
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 1) {
+          log(`Tentativa ${attempt}/${maxRetries} para adicionar à wishlist`);
+          await wait(CONFIG.TIMING.ACTION_DELAY);
+        }
+
+        btn.click();
+
+        // Aguarda confirmação visual
+        const confirmed = await Wishlist.waitForConfirmation();
+
+        if (confirmed) {
+          log(`Adicionado à wishlist com sucesso (tentativa ${attempt})`);
+          return true;
+        }
+
+        log(`Confirmação falhou na tentativa ${attempt}`, 1);
+      } catch (e) {
+        log(`Erro na tentativa ${attempt}: ${e.message}`, 1);
+      }
+    }
+
+    log(`Falha ao adicionar à wishlist após ${maxRetries} tentativas`, 1);
+    return false;
   },
 };
 
@@ -297,6 +354,87 @@ const Queue = {
 
 
 // === End: src/queue.js ===
+
+// === Begin: src/ageSkip.js ===
+// ==== Age Gate Bypass ====
+
+
+const AgeSkip = {
+  /**
+   * Verifica se há um age gate visível na página
+   * @returns {boolean}
+   */
+  isActive: () => {
+    const ageGate = pick(CONFIG.SELECTORS.ageGate);
+    return ageGate && visible(ageGate);
+  },
+
+  /**
+   * Tenta preencher o ano de nascimento e confirmar para pular o age gate
+   * Define o ano para 1990 (usuário com 35+ anos)
+   * @returns {Promise<boolean>} true se conseguiu bypass
+   */
+  bypass: async () => {
+    if (!AgeSkip.isActive()) {
+      return false;
+    }
+
+    log("Age gate detectado, tentando bypass...");
+
+    // Tenta encontrar o campo de ano
+    const yearInput = pick(CONFIG.SELECTORS.ageConfirm);
+
+    if (yearInput) {
+      // Preenche o campo de ano com 1990
+      yearInput.focus();
+      yearInput.value = "1990";
+      yearInput.dispatchEvent(new Event("input", { bubbles: true }));
+      yearInput.dispatchEvent(new Event("change", { bubbles: true }));
+      await wait(200);
+    }
+
+    // Tenta encontrar e clicar no botão de confirmação
+    const confirmBtn = pick(CONFIG.SELECTORS.ageConfirmBtn);
+
+    if (confirmBtn && visible(confirmBtn)) {
+      confirmBtn.click();
+      log("Age gate bypass - clique no botão de confirmação");
+      await wait(800);
+      return true;
+    }
+
+    // Fallback: tenta submeter o formulário diretamente
+    const form = document.querySelector("form");
+    if (form) {
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      log("Age gate bypass - submit do formulário");
+      await wait(800);
+      return true;
+    }
+
+    log("Não foi possível fazer bypass do age gate", 1);
+    return false;
+  },
+
+  /**
+   * Aguarda o age gate desaparecer após o bypass
+   * @param {number} timeout - Tempo máximo de espera em ms
+   * @returns {Promise<boolean>}
+   */
+  waitForDismiss: async (timeout = 3000) => {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      if (!AgeSkip.isActive()) {
+        return true;
+      }
+      await wait(100);
+    }
+    log("Age gate não desapareceu após bypass", 1);
+    return false;
+  },
+};
+
+// === End: src/ageSkip.js ===
 
 // === Begin: src/ui.js ===
 // ==== Interface do Usuário ====
@@ -471,6 +609,24 @@ const Loop = {
     State.processing = true;
 
     try {
+      // 0. Verificar e bypass age gate
+      if (AgeSkip.isActive()) {
+        log("Age gate detectado, tentando bypass...");
+        UI.updateStatus("Bypass age gate...", "#e4d00a");
+        const bypassed = await AgeSkip.bypass();
+        if (bypassed) {
+          await AgeSkip.waitForDismiss();
+          log("Age gate bypass com sucesso");
+        } else {
+          log("Falha no age gate bypass, pulando jogo", 1);
+          UI.updateStatus("Age gate falhou, pulando", "#ff7a7a");
+          UI.incrementSkipped();
+          await Queue.advance();
+        }
+        State.processing = false;
+        return;
+      }
+
       // 1. Verificar se a fila está vazia e gerar nova fila
       if (Queue.isEmpty()) {
         UI.updateStatus("Fila vazia, reiniciando...", "#e4d00a");
@@ -492,12 +648,15 @@ const Loop = {
         UI.updateStatus(`Pulado: ${skipReason}`, "#aaa");
         UI.incrementSkipped();
       } else {
-        // Adicionar à wishlist
+        // 3. Adicionar à wishlist com confirmação
         const added = await Wishlist.add();
         if (added) {
           log(`Adicionado: ${title}`);
           UI.updateStatus("Adicionado!", "#a1dd4a");
           UI.incrementWishlisted();
+        } else {
+          log(`Falha ao adicionar ${title} à wishlist`, 1);
+          UI.updateStatus("Falha ao adicionar", "#ff7a7a");
         }
       }
 

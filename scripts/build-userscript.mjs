@@ -15,6 +15,7 @@ const MODULE_ORDER = [
   "src/game.js",
   "src/wishlist.js",
   "src/queue.js",
+  "src/ageSkip.js",
   "src/ui.js",
   "src/loop.js",
   "src/main.js", // deve ser o último — contém metadata block
