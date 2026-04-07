@@ -47,7 +47,8 @@ const CONFIG = {
 
     // Wishlist
     wishlistArea: "#add_to_wishlist_area, .queue_wishlist_ctn",
-    wishlistButton: ".add_to_wishlist .btn_addtocart, .queue_wishlist_button",
+    // O botão de wishlist É o próprio .add_to_wishlist (não há .btn_addtocart dentro)
+    wishlistButton: ".add_to_wishlist, .queue_wishlist_button",
     wishlistSuccess: ".add_to_wishlist_area_success, .queue_btn_active",
 
     // Navegação
