@@ -46,21 +46,31 @@ const Loop = {
 
     try {
       // Verificar se estamos na página de visão geral da fila (/explore/)
-      // Se sim, clicar no botão para iniciar a fila antes de processar
-      const isQueueOverview = document.querySelector('.discovery_queue_static') &&
-                              !document.querySelector('.apphub_AppName, .queue_item_title');
-      if (isQueueOverview) {
-        log("Página de visão geral da fila detectada, iniciando fila...", 1);
+      // ou na página de jogos recomendados
+      if (!document.querySelector('.apphub_AppName, .queue_item_title')) {
+        log("Página de visão geral detectada - sem jogo individual. Tentando iniciar fila...", 1);
         UI.updateStatus("Iniciando fila...", "#e4d00a");
+
+        // Tentar clicar em qualquer link que inicia a fila
+        const startLinks = document.querySelectorAll('a[href*="/app/"][href*="?queue"]');
+        if (startLinks.length > 0) {
+          startLinks[0].click();
+          log("Cliquei no primeiro link da fila");
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY * 2);
+          State.processing = false;
+          return;
+        }
+
         if (Queue.tryStart()) {
           await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
           State.processing = false;
           return;
-        } else {
-          log("Não foi possível iniciar a fila automaticamente. Clique manualmente.", 1);
-          State.processing = false;
-          return;
         }
+
+        log("Não foi possível iniciar a fila. Navegue manualmente para /explore/ e clique em começar.", 1);
+        UI.updateStatus("Erro: clique manualmente", "#ff7a7a");
+        State.processing = false;
+        return;
       }
 
       // 0. Verificar e bypass age gate

@@ -188,60 +188,15 @@ function saveStats() {
 
 const Game = {
   hasCards: () => {
-    // 1. Seletor principal (páginas normais e fila)
-    const indicator = pick(CONFIG.SELECTORS.tradingCards);
-    if (indicator) {
-      log("Cartas detectadas pelo seletor principal", 1);
-      return true;
-    }
+    // 1. Seletor por texto em labels
+    const cardLabels = Array.from(document.querySelectorAll('.game_area_details_specs_ctn .label'));
+    if (cardLabels.some(el => el.textContent.includes('Cartas'))) return true;
 
-    // 2. Verifica pelo texto "Cartas Colecionáveis Steam" no label
-    const cardLabels = Array.from(document.querySelectorAll('.game_area_details_specs_ctn .label, .queue_item_text .label'));
-    const hasCardLabel = cardLabels.some(el =>
-      el.textContent.includes('Cartas') || el.textContent.includes('Cards')
-    );
-    if (hasCardLabel) {
-      log("Cartas detectadas pelo texto do label", 1);
-      return true;
-    }
+    // 2. Seletor por ícone
+    if (document.querySelector('.category_icon[src*="ico_cards"]')) return true;
 
-    // 3. Verifica pelo ícone das cartas
-    const cardIcons = document.querySelectorAll('.category_icon[src*="ico_cards"]');
-    if (cardIcons.length > 0) {
-      log("Cartas detectadas pelo ícone", 1);
-      return true;
-    }
-
-    // 4. Verifica links com href contendo category2=29
-    const cardLinks = document.querySelectorAll('a[href*="category2=29"]');
-    if (cardLinks.length > 0) {
-      log("Cartas detectadas pelo link category2=29", 1);
-      return true;
-    }
-
-    // Debug: mostrar exatamente o que foi encontrado
-    log("Sem cartas detectadas. Verificando o que existe na página:", 1);
-
-    // Debug: mostrar todos os links com category2
-    const allCat2Links = document.querySelectorAll('a[href*="category2"]');
-    log("  - Total links com category2: " + allCat2Links.length, 1);
-    allCat2Links.forEach((link, i) => {
-      log(`    [${i}] href="${link.getAttribute('href')}" text="${link.textContent.trim().substring(0, 50)}"`, 1);
-    });
-
-    // Debug: verificar game_area_details_specs_ctn
-    const specsCtns = document.querySelectorAll('.game_area_details_specs_ctn');
-    log("  - game_area_details_specs_ctn: " + specsCtns.length, 1);
-    specsCtns.forEach((ctn, i) => {
-      log(`    [${i}] href="${ctn.getAttribute('href')}" text="${ctn.textContent.trim().substring(0, 50)}"`, 1);
-    });
-
-    // Debug: verificar category_icons
-    const icons = document.querySelectorAll('.category_icon');
-    log("  - category_icon: " + icons.length, 1);
-    icons.forEach((icon, i) => {
-      log(`    [${i}] src="${icon.getAttribute('src')}"`, 1);
-    });
+    // 3. Seletor por link
+    if (document.querySelector('a[href*="category2=29"]')) return true;
 
     return false;
   },
@@ -725,21 +680,31 @@ const Loop = {
 
     try {
       // Verificar se estamos na página de visão geral da fila (/explore/)
-      // Se sim, clicar no botão para iniciar a fila antes de processar
-      const isQueueOverview = document.querySelector('.discovery_queue_static') &&
-                              !document.querySelector('.apphub_AppName, .queue_item_title');
-      if (isQueueOverview) {
-        log("Página de visão geral da fila detectada, iniciando fila...", 1);
+      // ou na página de jogos recomendados
+      if (!document.querySelector('.apphub_AppName, .queue_item_title')) {
+        log("Página de visão geral detectada - sem jogo individual. Tentando iniciar fila...", 1);
         UI.updateStatus("Iniciando fila...", "#e4d00a");
+
+        // Tentar clicar em qualquer link que inicia a fila
+        const startLinks = document.querySelectorAll('a[href*="/app/"][href*="?queue"]');
+        if (startLinks.length > 0) {
+          startLinks[0].click();
+          log("Cliquei no primeiro link da fila");
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY * 2);
+          State.processing = false;
+          return;
+        }
+
         if (Queue.tryStart()) {
           await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
           State.processing = false;
           return;
-        } else {
-          log("Não foi possível iniciar a fila automaticamente. Clique manualmente.", 1);
-          State.processing = false;
-          return;
         }
+
+        log("Não foi possível iniciar a fila. Navegue manualmente para /explore/ e clique em começar.", 1);
+        UI.updateStatus("Erro: clique manualmente", "#ff7a7a");
+        State.processing = false;
+        return;
       }
 
       // 0. Verificar e bypass age gate
