@@ -1,11 +1,16 @@
 {
   "name": "steam-infinite-wishlister",
   "private": true,
-  "version": "2.3.0",
+  "version": "2.4.0",
   "type": "module",
   "description": "Build e distribuicao do userscript Steam Infinite Wishlister",
   "scripts": {
     "build": "node scripts/build-userscript.mjs",
-    "check": "node scripts/build-userscript.mjs --check"
+    "check": "node scripts/build-userscript.mjs --check",
+    "test": "node --test --test-concurrency=1 tests/**/*.test.js",
+    "verify": "npm run check && npm run test"
+  },
+  "devDependencies": {
+    "jsdom": "^29.0.2"
   }
 }

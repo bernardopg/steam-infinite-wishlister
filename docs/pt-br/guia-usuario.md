@@ -2,164 +2,100 @@
 
 ## Visão Geral do Painel
 
-O painel flutuante aparece no canto inferior direito das páginas suportadas da Steam:
+O painel flutuante exibe:
 
-### Exibição de Status
+- Status da execução
+- Contadores persistentes (`adicionados` e `pulados`)
+- Indicador de versão/atualização
+- Controles manuais
+- Configurações em tempo real
 
-| Elemento | Descrição |
-|----------|-----------|
-| **Texto de Status** | Estado atual do script (Executando, Pausado, Adicionando, etc.) |
-| **Contador de Sessão** | Itens adicionados na sessão atual (X Adicionados) |
-| **Versão** | Versão do script com indicador de atualização |
+## Botões
 
-### Botões
+| Botão | Comportamento |
+|---|---|
+| `Start` | Inicia ou retoma o loop |
+| `Pause` | Pausa a execução |
+| `Stop` | Encerra a execução |
+| `Process Once` | Processa apenas o item atual |
+| `Skip Item` | Avança manualmente e incrementa pulados |
+| `_` | Minimiza o painel |
 
-| Botão | Ação |
-|-------|------|
-| **▶️ Iniciar** | Iniciar ou retomar automação |
-| **⏸️ Pausar** | Pausar após processar item atual |
-| **⏹️ Parar** | Parar completamente, desabilitar Auto-Start |
-| **🖱️ Processar Uma Vez** | Avaliar item atual sem iniciar loop |
-| **⏭️ Pular Item** | Pular item atual sem avaliação |
-| **▬ Minimizar** | Recolher painel para economizar espaço |
+## Configurações
 
-### Configurações (Checkboxes)
+| Configuração | Efeito |
+|---|---|
+| `Auto-Start` | Inicia automaticamente após carregar a página |
+| `Auto-Restart Queue` | Reinicia a fila quando ela termina |
+| `Require Cards` | Pula itens sem cartas colecionáveis |
+| `Skip Owned` | Pula jogos já presentes na biblioteca |
+| `Skip Non-Games` | Pula DLC, demo, trilha sonora, vídeo e software/ferramenta |
+| `Age Skip` | Tenta ignorar automaticamente o age gate |
 
-| Configuração | Descrição |
-|--------------|-----------|
-| **Auto-Start** | Iniciar processamento automaticamente ao carregar página |
-| **Auto-Restart** | Gerar nova fila quando a atual terminar |
-| **Exigir Cartas** | Apenas jogos com cartas colecionáveis da Steam |
-| **Pular Possuídos** | Pular jogos já presentes na sua biblioteca |
-| **Pular Não-Jogos** | Pular DLCs, demos, trilhas sonoras, vídeos |
+## Fluxo de Processamento
 
-## Como Funciona
+A cada ciclo, o script faz:
 
-### Fluxo de Automação
+1. Detecta e tenta bypass de age gate (se ativo).
+2. Garante contexto da fila.
+3. Detecta fila vazia.
+4. Avalia filtros.
+5. Adiciona na wishlist (com retry e confirmação) ou pula.
+6. Avança para o próximo item.
 
-```
-1. Script ativa em páginas suportadas
-   ↓
-2. Ignora verificação de idade automaticamente
-   ↓
-3. Em páginas da Fila de Descobertas:
-   ↓
-4. Se Auto-Start habilitado → inicia loop
-   ↓
-5. Verifica item atual contra filtros
-   ↓
-6. Se passar nos filtros → Adiciona à Wishlist
-   ↓
-7. Se loop ativo → Clica em "Próximo na Fila"
-   ↓
-8. Se fila vazia & Auto-Restart → Gera nova fila
-   ↓
-9. Repete até ser parado
-```
+## Escopo do Filtro `Skip Non-Games`
 
-### Lógica de Processamento
+O filtro cobre:
 
-Para cada item na fila:
+- DLC
+- Demo
+- Trilha sonora
+- Vídeo
+- Software/Ferramenta
 
-1. **Obter informações do jogo**
-   - Título
-   - Quantidade restante na fila
+A detecção usa estratégia seletor-primeiro com fallback textual em áreas conhecidas da página.
 
-2. **Verificar condições de skip:**
-   - ✅ Já possui? (se `Pular Possuídos` ativo)
-   - ✅ Tipo não-jogo? (se `Pular Não-Jogos` ativo)
-   - ✅ Sem cartas? (se `Exigir Cartas` ativo)
+## Atalhos de Teclado
 
-3. **Executar ação:**
-   - Se pular: Incrementar contador, registrar motivo
-   - Se passar: Clicar em "Adicionar à Lista", aguardar confirmação
-
-4. **Avançar fila** (se não for ação manual)
+| Atalho | Ação |
+|---|---|
+| `Ctrl+Shift+S` | Start/Resume |
+| `Ctrl+Shift+P` | Pause |
+| `Ctrl+Shift+X` | Stop |
+| `Ctrl+Shift+O` | Process Once |
+| `Ctrl+Shift+N` | Skip Item |
+| `Esc` | Stop |
 
 ## Comandos do Menu Tampermonkey
 
-Clique com botão direito no ícone do Tampermonkey:
+Inclui:
 
-| Comando | Descrição |
-|---------|-----------|
-| **▶️ Iniciar** | Iniciar automação |
-| **⏸️ Pausar** | Pausar automação |
-| **⏹️ Parar** | Parar automação |
-| **⚙️ Alternar Auto-Start** | Habilitar/desabilitar Auto-Start |
-| **⚙️ Alternar Auto-Restart** | Habilitar/desabilitar Auto-Restart |
-| **⚙️ Alternar Filtro Cartas** | Habilitar/desabilitar exigência de cartas |
-| **⚙️ Alternar Pular Possuídos** | Habilitar/desabilitar pular possuídos |
-| **⚙️ Alternar Pular Não-Jogos** | Habilitar/desabilitar pular não-jogos |
+- Start, Pause, Stop
+- Process Once, Skip Item
+- Toggle de configurações
+- Check updates now
 
-## Mensagens de Status
+## Update Checker
 
-| Status | Significado |
-|--------|-------------|
-| **Pronto** | Aguardando ação do usuário |
-| **Executando** | Processando itens da fila |
-| **Pausado** | Automação pausada |
-| **Parado** | Automação parada |
-| **Adicionando** | Adicionando item à wishlist |
-| **Adicionado** | Adicionado com sucesso à wishlist |
-| **Pulando** | Pulando item atual |
-| **Pulado** | Item foi pulado |
-| **Avançando** | Indo para próximo item |
-| **Verificando** | Analisando item atual |
-| **Erro** | Ocorreu um erro |
-| **Fila Vazia** | Sem itens restantes |
-| **Gerando** | Criando nova fila |
+- Usa `version.json` do repositório.
+- Cooldown de 24h (`UPDATE_CHECK_COOLDOWN_MS`).
+- Pode ser executado manualmente via menu.
+- Indicador de versão no painel destaca quando existe versão nova.
 
-## Dicas e Boas Práticas
+## Solução de Problemas
 
-### Para Colecionadores de Cartas
+### Fila não reinicia
 
-1. ✅ Ative o filtro **Exigir Cartas**
-2. ✅ Ative **Pular Possuídos** para evitar duplicatas
-3. ✅ Use Auto-Start para processamento automático
+Confira se `Auto-Restart Queue` está habilitado.
 
-### Para Construir Wishlist
+### Travado no age gate
 
-1. ✅ Desative **Exigir Cartas** para todos os jogos
-2. ✅ Ative **Pular Possuídos** e **Pular Não-Jogos**
-3. ✅ Use modo manual para adição seletiva
+Mantenha `Age Skip` habilitado, ou confirme manualmente uma vez.
 
-### Para Velocidade
+### Classificação incorreta de tipo de item
 
-- Reduza delays em `CONFIG.TIMING` (apenas usuários avançados)
-- Evite usar o navegador enquanto o script roda
-- Mantenha a aba da fila visível
-
-### Para Confiabilidade
-
-- Mantenha a loja Steam logada
-- Não navegue para fora durante processamento
-- Atualize o script regularmente para mudanças na Steam
-
-## Notificações de Atualização
-
-O script verifica atualizações a cada 24 horas:
-
-| Indicador | Significado |
-|-----------|-------------|
-| **v2.1** | Atualizado |
-| **v2.1 🆕** | Atualização disponível! |
-
-Clique no número da versão para visitar a página de atualização.
-
-## Perguntas Frequentes
-
-**P: Posso usar em múltiplas contas?**
-R: Sim, as configurações são armazenadas por domínio e funcionam com qualquer conta Steam.
-
-**P: Funciona na nova interface da Steam?**
-R: O script é atualizado regularmente para mudanças na interface. Mantenha-o atualizado.
-
-**P: Posso personalizar os filtros?**
-R: Use os checkboxes no painel para mudanças de filtro em tempo real.
-
-**P: O que acontece se a Steam mudar o layout?**
-R: O script inclui seletores alternativos. Se algo quebrar, verifique atualizações.
+Desative `Skip Non-Games` temporariamente e abra issue com URL + screenshot.
 
 ---
 
-[← Voltar para Documentação](../README.md) | [Arquitetura →](arquitetura.md)
+[Voltar para Docs](../README.md) | [Arquitetura](arquitetura.md)

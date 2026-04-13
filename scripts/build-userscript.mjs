@@ -18,6 +18,7 @@ const MODULE_ORDER = [
   "src/ageSkip.js",
   "src/ui.js",
   "src/loop.js",
+  "src/update.js",
   "src/main.js", // deve ser o último — contém metadata block
 ];
 
@@ -26,11 +27,10 @@ const MODULE_ORDER = [
  */
 function stripImports(code) {
   return code
-    .split("\n")
-    .filter((line) => !/^import\s/.test(line))
-    .filter((line) => !/^export\s/.test(line))
-    .filter((line) => !/^export\s*\{/.test(line))
-    .join("\n");
+    .replace(/^\s*import\s+[\s\S]*?;\s*$/gm, "")
+    .replace(/^\s*export\s+default\s+/gm, "")
+    .replace(/^\s*export\s*\{[\s\S]*?\}\s*;?\s*$/gm, "")
+    .trim();
 }
 
 /**

@@ -1,56 +1,84 @@
 // ==== Gerenciamento de Fila ====
 
 import CONFIG from "./config.js";
-import { pick, visible, byText, wait, log } from "./utils.js";
+import {
+  byAnyText,
+  pickVisibleAny,
+  safeClick,
+  visible,
+  wait,
+  log,
+} from "./utils.js";
 
 const Queue = {
-  tryStart: () => {
-    // Tenta botões específicos
-    for (const selector of CONFIG.SELECTORS.queueButtons) {
-      const btn = pick(selector);
-      if (btn && visible(btn)) {
-        btn.click();
-        log(`Cliquei em: ${selector}`);
+  openFirstQueueItem: () => {
+    const links = document.querySelectorAll(CONFIG.SELECTORS.queueStartLinks);
+    for (const link of links) {
+      if (visible(link) && safeClick(link)) {
+        log("Cliquei no primeiro item da fila");
         return true;
       }
     }
+    return false;
+  },
 
-    // Tenta busca por texto
-    const textTargets = ["Iniciar outra lista", "Clique aqui para começar"];
-    for (const txt of textTargets) {
-      const el = byText(txt);
-      if (el && visible(el)) {
-        el.click();
-        log(`Cliquei em: "${txt}"`);
-        return true;
-      }
+  tryStart: () => {
+    const button = pickVisibleAny(CONFIG.SELECTORS.queueButtons);
+    if (button && safeClick(button)) {
+      log("Cliquei no botão de início/reinício da fila");
+      return true;
+    }
+
+    if (Queue.openFirstQueueItem()) {
+      return true;
+    }
+
+    const byTextButton = byAnyText(CONFIG.TEXTS.queueStart);
+    if (byTextButton && visible(byTextButton) && safeClick(byTextButton)) {
+      log("Cliquei por texto para iniciar/reiniciar a fila");
+      return true;
     }
 
     return false;
   },
 
   clickNext: () => {
-    const btn = pick(CONFIG.SELECTORS.nextButton);
-    if (btn && visible(btn)) {
-      btn.click();
+    const btn = pickVisibleAny(CONFIG.SELECTORS.nextButton);
+    if (btn && safeClick(btn)) {
       log("Cliquei em: Próximo");
       return true;
     }
+
+    const byTextButton = byAnyText(CONFIG.TEXTS.queueNext);
+    if (byTextButton && visible(byTextButton) && safeClick(byTextButton)) {
+      log("Cliquei em Próximo por fallback textual");
+      return true;
+    }
+
     return false;
   },
 
   isEmpty: () => {
-    const empty = pick(CONFIG.SELECTORS.queueEmpty);
-    return empty && visible(empty);
+    const empty = pickVisibleAny(CONFIG.SELECTORS.queueEmpty);
+    if (empty) return true;
+
+    const byText = byAnyText(CONFIG.TEXTS.queueEmpty);
+    return !!(byText && visible(byText));
   },
 
   clickFinish: () => {
-    const btn = pick(CONFIG.SELECTORS.finishQueue);
-    if (btn && visible(btn)) {
-      btn.click();
+    const btn = pickVisibleAny(CONFIG.SELECTORS.finishQueue);
+    if (btn && safeClick(btn)) {
       log("Cliquei em: Concluir lista");
       return true;
     }
+
+    const byTextButton = byAnyText(CONFIG.TEXTS.queueFinish);
+    if (byTextButton && visible(byTextButton) && safeClick(byTextButton)) {
+      log("Cliquei em Concluir lista por fallback textual");
+      return true;
+    }
+
     return false;
   },
 
@@ -59,17 +87,7 @@ const Queue = {
       await wait(CONFIG.TIMING.ACTION_DELAY);
       return true;
     }
-    // If clickNext failed, try finding and clicking by text
-    const textBtns = ["Próximo da lista", "Próximo", "Next"];
-    for (const txt of textBtns) {
-      const el = byText(txt);
-      if (el && visible(el)) {
-        el.click();
-        log(`Cliquei em botão por texto: "${txt}"`);
-        await wait(CONFIG.TIMING.ACTION_DELAY);
-        return true;
-      }
-    }
+
     log("Falha ao avançar: nenhum botão de próximo encontrado", 1);
     return false;
   },

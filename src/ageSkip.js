@@ -1,7 +1,23 @@
 // ==== Age Gate Bypass ====
 
 import CONFIG from "./config.js";
-import { pick, visible, wait, log } from "./utils.js";
+import {
+  byAnyText,
+  pickAny,
+  pickVisibleAny,
+  safeClick,
+  visible,
+  wait,
+  log,
+} from "./utils.js";
+
+const setFieldValue = (field, value) => {
+  if (!field) return;
+  field.focus();
+  field.value = String(value);
+  field.dispatchEvent(new Event("input", { bubbles: true }));
+  field.dispatchEvent(new Event("change", { bubbles: true }));
+};
 
 const AgeSkip = {
   /**
@@ -9,8 +25,10 @@ const AgeSkip = {
    * @returns {boolean}
    */
   isActive: () => {
-    const ageGate = pick(CONFIG.SELECTORS.ageGate);
-    return ageGate && visible(ageGate);
+    const ageGate = pickVisibleAny(CONFIG.SELECTORS.ageGate);
+    if (ageGate && visible(ageGate)) return true;
+
+    return window.location.pathname.includes("/agecheck");
   },
 
   /**
@@ -25,32 +43,51 @@ const AgeSkip = {
 
     log("Age gate detectado, tentando bypass...");
 
-    // Tenta encontrar o campo de ano
-    const yearInput = pick(CONFIG.SELECTORS.ageConfirm);
+    const yearInput = pickAny(CONFIG.SELECTORS.ageConfirmYear);
+    const monthInput = pickAny(CONFIG.SELECTORS.ageConfirmMonth);
+    const dayInput = pickAny(CONFIG.SELECTORS.ageConfirmDay);
 
     if (yearInput) {
-      // Preenche o campo de ano com 1990
-      yearInput.focus();
-      yearInput.value = "1990";
-      yearInput.dispatchEvent(new Event("input", { bubbles: true }));
-      yearInput.dispatchEvent(new Event("change", { bubbles: true }));
-      await wait(200);
+      setFieldValue(yearInput, "1990");
     }
+    if (monthInput) setFieldValue(monthInput, "1");
+    if (dayInput) setFieldValue(dayInput, "1");
 
-    // Tenta encontrar e clicar no botão de confirmação
-    const confirmBtn = pick(CONFIG.SELECTORS.ageConfirmBtn);
+    await wait(200);
 
-    if (confirmBtn && visible(confirmBtn)) {
-      confirmBtn.click();
+    const confirmBtn = pickVisibleAny(CONFIG.SELECTORS.ageConfirmBtn);
+    if (confirmBtn && safeClick(confirmBtn)) {
       log("Age gate bypass - clique no botão de confirmação");
       await wait(800);
       return true;
     }
 
-    // Fallback: tenta submeter o formulário diretamente
-    const form = document.querySelector("form");
+    const textButton = byAnyText([
+      "Ver página",
+      "View Page",
+      "Continue",
+      "Entrar",
+      "Acessar",
+    ]);
+    if (textButton && visible(textButton) && safeClick(textButton)) {
+      log("Age gate bypass - fallback textual");
+      await wait(800);
+      return true;
+    }
+
+    const form =
+      yearInput?.form ||
+      document.querySelector("form[action*='agecheck']") ||
+      document.querySelector("form");
+
     if (form) {
-      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      if (typeof form.submit === "function") {
+        form.submit();
+      } else {
+        form.dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+      }
       log("Age gate bypass - submit do formulário");
       await wait(800);
       return true;
@@ -66,9 +103,11 @@ const AgeSkip = {
    * @returns {Promise<boolean>}
    */
   waitForDismiss: async (timeout = 3000) => {
+    const initialPath = window.location.pathname;
     const start = Date.now();
     while (Date.now() - start < timeout) {
-      if (!AgeSkip.isActive()) {
+      const pathChanged = window.location.pathname !== initialPath;
+      if (!AgeSkip.isActive() || pathChanged) {
         return true;
       }
       await wait(100);

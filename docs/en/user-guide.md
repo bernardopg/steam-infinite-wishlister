@@ -1,175 +1,101 @@
 # User Guide
 
-## Control Panel Overview
+## Panel Overview
 
-The floating control panel appears in the bottom-right corner of supported Steam pages:
+The floating panel appears on supported Steam pages and contains:
 
-### Status Display
+- Status text
+- Persistent counters (`wishlisted` and `skipped`)
+- Version/update indicator
+- Manual controls
+- Runtime settings
 
-| Element | Description |
-|---------|-------------|
-| **Status Text** | Current script state (Running, Paused, Adding, etc.) |
-| **Session Counter** | Items wishlisted this session (X Added) |
-| **Version** | Script version with update indicator |
+## Buttons
 
-### Buttons
+| Button | Behavior |
+|---|---|
+| `Start` | Starts or resumes the loop |
+| `Pause` | Pauses loop execution |
+| `Stop` | Stops loop execution |
+| `Process Once` | Processes current item only once |
+| `Skip Item` | Advances queue manually and increments skipped counter |
+| `_` | Minimizes panel body |
 
-| Button | Action |
-|--------|--------|
-| **▶️ Start** | Begin or resume automation loop |
-| **⏸️ Pause** | Pause after current item finishes |
-| **⏹️ Stop** | Stop completely, disable Auto-Start |
-| **🖱️ Process Once** | Evaluate current item without starting loop |
-| **⏭️ Skip Item** | Skip current item without evaluation |
-| **▬ Minimize** | Collapse the panel to save space |
+## Settings
 
-### Settings Checkboxes
+| Setting | Effect |
+|---|---|
+| `Auto-Start` | Start automatically after page load |
+| `Auto-Restart Queue` | Restart queue when empty |
+| `Require Cards` | Skip items without trading cards |
+| `Skip Owned` | Skip games already in library |
+| `Skip Non-Games` | Skip DLC, demo, soundtrack, video and software/tool |
+| `Age Skip` | Try to bypass age gate automatically |
 
-| Setting | Description |
-|---------|-------------|
-| **Auto-Start** | Start processing automatically when page loads |
-| **Auto-Restart Queue** | Generate new queue when current ends |
-| **Require Cards** | Only add games with Steam Trading Cards |
-| **Skip Owned** | Skip games already in your library |
-| **Skip Non-Games** | Skip DLCs, demos, soundtracks, videos |
+## Processing Flow
 
-## How It Works
+For each cycle, the script does:
 
-### Automation Flow
+1. Detect and bypass age gate (if enabled).
+2. Ensure queue context is available.
+3. Detect queue empty state.
+4. Evaluate filters.
+5. Add to wishlist (with retry + confirmation polling) or skip.
+6. Advance to next queue item.
 
-```
-1. Script activates on supported pages
-   ↓
-2. Bypasses age verification automatically
-   ↓
-3. On Discovery Queue pages:
-   ↓
-4. If Auto-Start enabled → begins loop
-   ↓
-5. Checks current item against filters
-   ↓
-6. If passes filters → Adds to Wishlist
-   ↓
-7. If loop active → Clicks "Next in Queue"
-   ↓
-8. If queue empty & Auto-Restart → Generates new queue
-   ↓
-9. Repeats until stopped
-```
+## Non-Game Scope
 
-### Item Processing Logic
+`Skip Non-Games` currently targets:
 
-For each item in the queue:
+- DLC
+- Demo
+- Soundtrack
+- Video
+- Software/Tool
 
-1. **Get game information**
-   - Title
-   - Remaining queue count
-
-2. **Check skip conditions:**
-   - ✅ Already owned? (if `Skip Owned` enabled)
-   - ✅ Non-game type? (if `Skip Non-Games` enabled)
-   - ✅ No trading cards? (if `Require Cards` enabled)
-
-3. **Take action:**
-   - If skip: Increment skip counter, log reason
-   - If pass: Click "Add to Wishlist", wait for confirmation
-
-4. **Advance queue** (if not manual action)
-
-## Tampermonkey Menu Commands
-
-Right-click the Tampermonkey icon for quick access:
-
-| Command | Description |
-|---------|-------------|
-| **▶️ Start** | Begin automation |
-| **⏸️ Pause** | Pause automation |
-| **⏹️ Stop** | Stop automation |
-| **⚙️ Toggle Auto-Start** | Enable/disable Auto-Start |
-| **⚙️ Toggle Auto-Restart** | Enable/disable Auto-Restart |
-| **⚙️ Toggle Cards Filter** | Enable/disable Cards requirement |
-| **⚙️ Toggle Skip Owned** | Enable/disable Skip Owned |
-| **⚙️ Toggle Skip Non-Games** | Enable/disable Skip Non-Games |
-
-## Status Messages
-
-| Status | Meaning |
-|--------|---------|
-| **Ready** | Waiting for user action |
-| **Running** | Processing queue items |
-| **Paused** | Automation paused |
-| **Stopped** | Automation stopped |
-| **Adding** | Adding item to wishlist |
-| **Added** | Successfully added to wishlist |
-| **Skipping** | Skipping current item |
-| **Skipped** | Item was skipped |
-| **Advancing** | Moving to next item |
-| **Checking** | Analyzing current item |
-| **Error** | An error occurred |
-| **Queue Empty** | No items remaining |
-| **Generating** | Creating new queue |
+Detection uses selector-first strategy and text fallback in known page regions.
 
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
-|----------|--------|
-| **Alt+S** | Start/Resume |
-| **Alt+P** | Pause |
-| **Alt+X** | Stop |
+|---|---|
+| `Ctrl+Shift+S` | Start/Resume |
+| `Ctrl+Shift+P` | Pause |
+| `Ctrl+Shift+X` | Stop |
+| `Ctrl+Shift+O` | Process Once |
+| `Ctrl+Shift+N` | Skip Item |
+| `Esc` | Stop |
 
-> ⚠️ Shortcuts may conflict with Steam's own shortcuts. If conflicts occur, use the UI buttons instead.
+## Tampermonkey Menu
 
-## Tips & Best Practices
+Menu commands include:
 
-### For Card Collectors
+- Start, Pause, Stop
+- Process Once, Skip Item
+- Toggle settings
+- Check updates now
 
-1. ✅ Enable **Require Cards** filter
-2. ✅ Enable **Skip Owned** to avoid duplicates
-3. ✅ Set Auto-Start for hands-free processing
+## Update Checker
 
-### For Wishlist Building
+- Uses `version.json` from repository.
+- Applies cooldown of 24h (`UPDATE_CHECK_COOLDOWN_MS`).
+- Can be forced manually from menu command.
+- Version label becomes highlighted when newer version is available.
 
-1. ✅ Disable **Require Cards** for all games
-2. ✅ Enable **Skip Owned** and **Skip Non-Games**
-3. ✅ Use manual mode for selective adding
+## Troubleshooting
 
-### For Speed
+### Queue not restarting
 
-- Lower delays in `CONFIG.TIMING` (advanced users only)
-- Avoid using browser while script runs
-- Keep queue page visible in tab
+Check `Auto-Restart Queue` option.
 
-### For Reliability
+### Script stuck on age gate
 
-- Keep Steam Store logged in
-- Don't navigate away during processing
-- Update script regularly for Steam layout changes
+Keep `Age Skip` enabled, or confirm gate manually once.
 
-## Update Notifications
+### Wrong item type detection
 
-The script checks for updates every 24 hours:
-
-| Indicator | Meaning |
-|-----------|---------|
-| **v2.1** | Up to date |
-| **v2.1 🆕** | Update available! |
-
-Click the version number to visit the update page.
-
-## Common Questions
-
-**Q: Can I use this on multiple accounts?**
-A: Yes, settings are stored per-domain and work with any Steam account.
-
-**Q: Does this work on the new Steam UI?**
-A: The script is updated regularly for Steam UI changes. Keep it updated.
-
-**Q: Can I customize the filters?**
-A: Use the checkboxes in the panel for real-time filter changes.
-
-**Q: What happens if Steam changes their layout?**
-A: The script includes fallback selectors. If something breaks, check for updates.
+Disable `Skip Non-Games` temporarily and report issue with page URL and screenshot.
 
 ---
 
-[← Back to Documentation Hub](../README.md) | [Architecture →](architecture.md)
+[Back to Docs](../README.md) | [Architecture](architecture.md)

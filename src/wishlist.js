@@ -1,7 +1,26 @@
 // ==== Gerenciamento de Wishlist ====
 
 import CONFIG from "./config.js";
-import { pick, visible, wait, log } from "./utils.js";
+import {
+  byAnyText,
+  normalizeText,
+  pickAny,
+  pickVisibleAny,
+  safeClick,
+  visible,
+  wait,
+  log,
+} from "./utils.js";
+
+const findWishlistButton = (area) => {
+  if (area) {
+    for (const selector of CONFIG.SELECTORS.wishlistButton) {
+      const button = area.querySelector(selector);
+      if (button) return button;
+    }
+  }
+  return pickAny(CONFIG.SELECTORS.wishlistButton);
+};
 
 const Wishlist = {
   /**
@@ -10,28 +29,44 @@ const Wishlist = {
    * @returns {boolean}
    */
   isAlreadyAdded: () => {
-    // Verifica se a área de sucesso existe (ID muda após adicionar)
-    const successArea = document.querySelector("#add_to_wishlist_area_success");
+    const successArea = pickVisibleAny(CONFIG.SELECTORS.wishlistSuccess);
     if (successArea && visible(successArea)) return true;
 
-    // Verifica se existe botão ativo na área original
-    const area = document.querySelector("#add_to_wishlist_area");
+    const area = pickAny(CONFIG.SELECTORS.wishlistArea);
     if (area) {
-      const btn = area.querySelector(".add_to_wishlist");
-      // Se o botão existe mas tem classe de ativo, já foi adicionado
-      if (btn && (btn.classList.contains("queue_btn_active") || btn.classList.contains("btn_wishlist_active"))) {
+      const btn = findWishlistButton(area);
+      if (
+        btn &&
+        (btn.classList.contains("queue_btn_active") ||
+          btn.classList.contains("btn_wishlist_active") ||
+          btn.getAttribute("aria-pressed") === "true")
+      ) {
         return true;
       }
-      // Se o botão de adicionar não existe mas a área existe, pode ter sido convertido
+
       if (!btn) {
-        const success = area.querySelector(".add_to_wishlist_area_success");
+        const success = area.querySelector("#add_to_wishlist_area_success");
         if (success && visible(success)) return true;
+      }
+
+      const btnText = normalizeText(btn?.textContent);
+      if (
+        btnText &&
+        CONFIG.TEXTS.wishlistAdded.some((value) =>
+          btnText.includes(normalizeText(value)),
+        )
+      ) {
+        return true;
       }
     }
 
-    // Fallback: verifica botão genérico ativo
-    const activeBtn = document.querySelector(".queue_btn_active, .btn_wishlist_active");
-    return activeBtn && visible(activeBtn);
+    const activeBtn = pickVisibleAny(CONFIG.SELECTORS.wishlistSuccess);
+    if (activeBtn) return true;
+
+    const byText = byAnyText(CONFIG.TEXTS.wishlistAdded);
+    if (byText && visible(byText)) return true;
+
+    return false;
   },
 
   /**
@@ -60,32 +95,35 @@ const Wishlist = {
    * @returns {Promise<boolean>} true se adicionado com sucesso
    */
   add: async (maxRetries = 2) => {
-    const area = pick(CONFIG.SELECTORS.wishlistArea);
-    if (!area) {
-      log("Área de wishlist não encontrada");
-      return false;
-    }
-
     if (Wishlist.isAlreadyAdded()) {
       log("Já está na wishlist");
       return true;
     }
 
-    const btn = area.querySelector(CONFIG.SELECTORS.wishlistButton);
-    if (!btn || !visible(btn)) {
-      log("Botão de wishlist não encontrado");
-      return false;
-    }
-
     // Tenta adicionar com retries
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
+        const area = pickAny(CONFIG.SELECTORS.wishlistArea);
+        if (!area) {
+          log("Área de wishlist não encontrada", 1);
+          return false;
+        }
+
+        const btn = findWishlistButton(area);
+        if (!btn || !visible(btn)) {
+          log("Botão de wishlist não encontrado", 1);
+          return false;
+        }
+
         if (attempt > 1) {
           log(`Tentativa ${attempt}/${maxRetries} para adicionar à wishlist`);
           await wait(CONFIG.TIMING.ACTION_DELAY);
         }
 
-        btn.click();
+        if (!safeClick(btn)) {
+          log(`Falha de clique na tentativa ${attempt}`, 1);
+          continue;
+        }
 
         // Aguarda confirmação visual
         const confirmed = await Wishlist.waitForConfirmation();

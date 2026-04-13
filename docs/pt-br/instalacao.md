@@ -1,108 +1,73 @@
 # Guia de Instalação
 
-## Pré-requisitos
+## Requisitos
 
-- Navegador compatível (Chrome, Firefox, Edge, Opera, etc.)
-- Extensão de gerenciamento de userscripts instalada
+- Navegador com suporte a userscript (Chrome, Edge, Firefox, Opera).
+- Tampermonkey (recomendado).
 
-## Passo a Passo
+## Instalar
 
-### 1. Instale o Gerenciador de Scripts
+### Opção A: instalação direta
 
-Escolha uma das opções:
+[Instalar via URL raw](https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js)
 
-| Gerenciador | Chrome | Firefox | Edge |
-|-------------|--------|---------|------|
-| [Tampermonkey](https://www.tampermonkey.net/) | ✅ | ✅ | ✅ |
-| [Violentmonkey](https://violentmonkey.github.io/) | ✅ | ✅ | ✅ |
-| [Greasemonkey](https://www.greasespot.net/) | ❌ | ✅ | ❌ |
+### Opção B: instalação manual
 
-**Recomendado:** Tampermonkey para melhor compatibilidade.
+1. Abra o painel do Tampermonkey.
+2. Crie um novo script.
+3. Cole o conteúdo de `SteamInfiniteWishlister.user.js`.
+4. Salve.
 
-### 2. Instale o Script
+## Checklist do Primeiro Uso
 
-**Opção A: Instalação Direta (Recomendado)**
+1. Acesse a [Fila de Descobertas](https://store.steampowered.com/explore/).
+2. Confirme se o painel flutuante aparece no canto inferior direito.
+3. Ajuste as opções:
+   - Auto-Start
+   - Auto-Restart Queue
+   - Require Cards
+   - Skip Owned
+   - Skip Non-Games
+   - Age Skip
+4. Clique em `Start`.
 
-[Clique aqui para instalar diretamente](https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js)
+## URLs Suportadas
 
-O Tampermonkey deve abrir automaticamente e solicitar a instalação.
+| Escopo | Padrão |
+|---|---|
+| Páginas de app Steam | `*://store.steampowered.com/app/*` |
+| Fila de Descobertas | `*://store.steampowered.com/explore*` |
+| Curadores | `*://store.steampowered.com/curator/*` |
+| Comunidade Steam | `*://steamcommunity.com/*` |
 
-**Opção B: Instalação Manual**
+## Permissões Necessárias
 
-1. Copie o conteúdo de [`SteamInfiniteWishlister.user.js`](https://raw.githubusercontent.com/bernardopg/steam-infinite-wishlister/main/SteamInfiniteWishlister.user.js)
-2. Abra o painel do Tampermonkey
-3. Crie um novo script
-4. Cole o código
-5. Salve (Ctrl+S)
-
-### 3. Verifique a Instalação
-
-1. Acesse a [Loja Steam](https://store.steampowered.com/)
-2. Vá para a [Fila de Descobertas](https://store.steampowered.com/explore/)
-3. Procure o painel flutuante no canto inferior direito
-
-Se o painel aparecer, a instalação foi bem-sucedida! ✅
-
-## Configuração
-
-### Configuração Inicial
-
-Na primeira vez que abrir o script, configure estas opções no painel:
-
-| Configuração | Descrição | Recomendado |
-|--------------|-----------|:-----------:|
-| **Auto-Start** | Iniciar processamento automaticamente ao carregar | ✅ |
-| **Auto-Restart** | Gerar nova fila quando a atual terminar | ✅ |
-| **Exigir Cartas** | Apenas jogos com cartas colecionáveis | ✅ |
-| **Pular Possuídos** | Pular jogos que você já tem | ✅ |
-| **Pular Não-Jogos** | Pular DLCs, demos, trilhas sonoras, etc. | ✅ |
-
-### Salvando Configurações
-
-Todas as configurações são salvas automaticamente entre sessões.
+| Permissão | Uso |
+|---|---|
+| `GM_addStyle` | Estilo do painel |
+| `GM_registerMenuCommand` | Ações rápidas no Tampermonkey |
+| `GM_getValue` / `GM_setValue` | Persistência de configurações e contadores |
+| `GM_xmlhttpRequest` | Verificação de versão (`version.json`) |
 
 ## Solução de Problemas
 
-### Painel Não Aparece
+### Painel não aparece
 
-1. Atualize a página (F5)
-2. Verifique se o Tampermonkey está habilitado
-3. Verifique se o script está ativo para o domínio da Steam
-4. Abra o console do navegador (F12) e procure erros
+1. Atualize a página.
+2. Verifique se o script está habilitado no Tampermonkey.
+3. Confirme que a URL está em um padrão suportado.
 
-### Script Não Funciona
+### Fila não avança
 
-1. Verifique se está em uma página suportada
-2. Confirme que a fila carregou
-3. Desative scripts conflitantes
-4. Atualize para a última versão
+1. Confirme que a fila da Steam está realmente aberta.
+2. Mantenha a aba ativa durante a validação inicial.
+3. Desative scripts/extensões conflitantes temporariamente.
 
-### Problemas com Verificação de Idade
+### Age gate bloqueado
 
-O script ignora automaticamente verificações de idade. Se falhar:
-1. Clique manualmente em "Ver página" na verificação
-2. O script deve continuar no próximo item
-
-## Páginas Suportadas
-
-| Tipo de Página | URL | Recursos |
-|----------------|-----|----------|
-| Páginas de Jogos | `store.steampowered.com/app/*` | Wishlist, Fila |
-| Fila de Descobertas | `store.steampowered.com/explore*` | Automação Completa |
-| Curadores | `store.steampowered.com/curator/*` | Navegação da Fila |
-| Comunidade | `steamcommunity.com/*` | Ignorar Idade |
-
-## Permissões
-
-O script solicita estas permissões do Tampermonkey:
-
-| Permissão | Propósito |
-|-----------|-----------|
-| `GM_addStyle` | Injetar CSS no painel de controle |
-| `GM_registerMenuCommand` | Adicionar comandos ao menu do Tampermonkey |
-| `GM_setValue` / `GM_getValue` | Salvar e carregar configurações |
-| `GM_xmlhttpRequest` | Verificar atualizações do script |
+1. Mantenha `Age Skip` ativado.
+2. Se a Steam mudar layout, confirme manualmente uma vez e continue.
 
 ---
 
-[← Voltar para Documentação](../README.md) | [Guia do Usuário →](guia-usuario.md)
+[Voltar para Docs](../README.md) | [Guia do Usuário](guia-usuario.md)

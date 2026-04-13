@@ -7,74 +7,103 @@ import Wishlist from "./wishlist.js";
 import Queue from "./queue.js";
 import UI from "./ui.js";
 import AgeSkip from "./ageSkip.js";
-import { wait, log } from "./utils.js";
+import { pickAny, randomBetween, wait, log } from "./utils.js";
 
 const Loop = {
-  start: async () => {
+  start: () => {
     if (State.running) return;
 
     State.running = true;
-    UI.setRunning(true);
-    UI.updateStatus("Iniciando...", "#66c0f4");
+    State.paused = false;
+    UI.setLoopState("running");
+    UI.updateStatus("Executando...", "#66c0f4");
     log("Loop iniciado");
 
-    Loop.run();
+    void Loop.run();
+  },
+
+  pause: () => {
+    if (!State.running) return;
+
+    State.running = false;
+    State.paused = true;
+    UI.setLoopState("paused");
+    UI.updateStatus("Pausado", "#e4d00a");
+    log("Loop pausado");
   },
 
   stop: () => {
     State.running = false;
-    UI.setRunning(false);
+    State.paused = false;
+    UI.setLoopState("stopped");
     UI.updateStatus("Parado");
     log("Loop parado");
+  },
+
+  processOnce: async () => {
+    if (State.running || State.processing) {
+      return false;
+    }
+
+    UI.updateStatus("Processando item único...", "#66c0f4");
+    const processed = await Loop.step({ manual: true });
+
+    if (!State.running) {
+      UI.setLoopState(State.paused ? "paused" : "stopped");
+    }
+
+    return processed;
+  },
+
+  skipCurrent: async () => {
+    if (State.processing) {
+      return false;
+    }
+
+    UI.updateStatus("Pulando item manualmente...", "#aaa");
+    UI.incrementSkipped();
+    saveStats();
+
+    const advanced = await Queue.advance();
+    UI.updateStatus(advanced ? "Item pulado" : "Falha ao pular", advanced ? "#aaa" : "#ff7a7a");
+    return advanced;
   },
 
   run: async () => {
     while (State.running) {
       await Loop.step();
 
+      if (!State.running) {
+        break;
+      }
+
       // Delay variável
-      const jitter =
-        CONFIG.TIMING.LOOP_MIN +
-        Math.floor(Math.random() * (CONFIG.TIMING.LOOP_MAX - CONFIG.TIMING.LOOP_MIN + 1));
+      const jitter = randomBetween(CONFIG.TIMING.LOOP_MIN, CONFIG.TIMING.LOOP_MAX);
       await wait(jitter);
     }
   },
 
-  step: async () => {
+  ensureQueueContext: async () => {
+    if (Queue.openFirstQueueItem()) {
+      await wait(CONFIG.TIMING.QUEUE_GEN_DELAY * 2);
+      return true;
+    }
+
+    if (Queue.tryStart()) {
+      await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+      return true;
+    }
+
+    return false;
+  },
+
+  step: async ({ manual = false } = {}) => {
     if (State.processing) return;
     State.processing = true;
 
     try {
-      // Verificar se estamos na página de visão geral da fila (/explore/)
-      // ou na página de jogos recomendados
-      if (!document.querySelector('.apphub_AppName, .queue_item_title')) {
-        log("Página de visão geral detectada - sem jogo individual. Tentando iniciar fila...", 1);
-        UI.updateStatus("Iniciando fila...", "#e4d00a");
-
-        // Tentar clicar em qualquer link que inicia a fila
-        const startLinks = document.querySelectorAll('a[href*="/app/"][href*="?queue"]');
-        if (startLinks.length > 0) {
-          startLinks[0].click();
-          log("Cliquei no primeiro link da fila");
-          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY * 2);
-          State.processing = false;
-          return;
-        }
-
-        if (Queue.tryStart()) {
-          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
-          State.processing = false;
-          return;
-        }
-
-        log("Não foi possível iniciar a fila. Navegue manualmente para /explore/ e clique em começar.", 1);
-        UI.updateStatus("Erro: clique manualmente", "#ff7a7a");
-        State.processing = false;
-        return;
-      }
-
-      // 0. Verificar e bypass age gate
-      if (AgeSkip.isActive()) {
+      // 0. Verificar e bypass age gate (deve ocorrer antes da heurística de contexto)
+      if (State.settings.ageSkip && AgeSkip.isActive()) {
         log("Age gate detectado, tentando bypass...");
         UI.updateStatus("Bypass age gate...", "#e4d00a");
         const bypassed = await AgeSkip.bypass();
@@ -88,30 +117,53 @@ const Loop = {
           saveStats();
           await Queue.advance();
         }
-        State.processing = false;
-        return;
+        return true;
       }
 
-      // 1. Verificar se a fila está vazia
+      if (!State.settings.ageSkip && AgeSkip.isActive()) {
+        UI.updateStatus("Age gate ativo. Habilite Age Skip ou confirme manualmente.", "#ff7a7a");
+        return false;
+      }
+
+      // 1. Verificar se estamos em página com item de jogo ativo da fila
+      if (!pickAny(CONFIG.SELECTORS.title)) {
+        log("Sem jogo ativo detectado; tentando abrir/gerar fila...", 1);
+        UI.updateStatus("Iniciando fila...", "#e4d00a");
+
+        const started = await Loop.ensureQueueContext();
+        if (!started && !manual && State.running) {
+          UI.updateStatus("Abra /explore e clique em iniciar", "#ff7a7a");
+          Loop.pause();
+        }
+        return false;
+      }
+
+      // 2. Verificar se a fila está vazia
       if (Queue.isEmpty()) {
-        // 1a. Tentar concluir lista primeiro
-        if (Queue.clickFinish()) {
-          UI.updateStatus("Lista concluída!", "#a1dd4a");
-          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
-          State.processing = false;
-          return;
+        if (!State.settings.autoRestart) {
+          UI.updateStatus("Fila vazia (auto-restart desativado)", "#e4d00a");
+          if (!manual && State.running) {
+            Loop.pause();
+          }
+          return false;
         }
 
-        // 1b. Gerar nova fila
+        if (Queue.clickFinish()) {
+          UI.updateStatus("Concluindo lista...", "#a1dd4a");
+          await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+        }
+
         UI.updateStatus("Fila vazia, reiniciando...", "#e4d00a");
         if (Queue.tryStart()) {
           await wait(CONFIG.TIMING.QUEUE_GEN_DELAY);
+          return false;
         }
-        State.processing = false;
-        return;
+
+        UI.updateStatus("Falha ao reiniciar fila", "#ff7a7a");
+        return false;
       }
 
-      // 2. Processar jogo atual
+      // 3. Processar jogo atual
       const title = Game.getTitle();
       UI.updateStatus(`Verificando: ${title}`, "#66c0f4");
 
@@ -138,9 +190,11 @@ const Loop = {
 
       // 4. Avançar para o próximo
       await Queue.advance();
+      return true;
     } catch (e) {
       log(`Erro no loop: ${e.message}`);
       UI.updateStatus(`Erro: ${e.message}`, "#ff7a7a");
+      return false;
     } finally {
       State.processing = false;
     }

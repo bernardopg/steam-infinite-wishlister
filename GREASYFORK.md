@@ -4,15 +4,16 @@ Automatiza a Discovery Queue da Steam para adicionar jogos a sua wishlist com fi
 
 ## Recursos
 
-- Adiciona jogos da fila a wishlist automaticamente
-- Filtra por cartas colecionaveis
-- Pula jogos ja possuidos
-- Pula itens nao desejados, como DLCs e outros tipos de conteudo
-- Avanca pela fila automaticamente
-- Pode reiniciar a fila ao terminar
-- Tenta contornar verificacoes de idade
-- Exibe painel de controle na pagina
-- Salva configuracoes entre sessoes
+- Adiciona jogos da fila na wishlist automaticamente
+- Filtro de cartas colecionaveis (Trading Cards)
+- Skip de jogos ja possuidos
+- Skip Non-Games (DLC, demo, trilha sonora, video e software/ferramenta)
+- Avanco automatico da fila com fallback de seletores
+- Auto-Restart da fila configuravel
+- Bypass de age gate com fallback de formulario
+- Painel com Start, Pause, Stop, Process Once, Skip Item e Minimize
+- Contadores persistentes de adicionados e pulados
+- Update checker com cooldown de 24h
 
 ## Como usar
 
@@ -25,9 +26,10 @@ Automatiza a Discovery Queue da Steam para adicionar jogos a sua wishlist com fi
 
 - Auto-Start
 - Auto-Restart Queue
-- Require Trading Cards
-- Skip Owned Games
+- Require Cards
+- Skip Owned
 - Skip Non-Games
+- Age Skip
 
 ## Paginas suportadas
 
