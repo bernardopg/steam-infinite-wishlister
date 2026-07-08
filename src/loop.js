@@ -65,7 +65,10 @@ const Loop = {
     saveStats();
 
     const advanced = await Queue.advance();
-    UI.updateStatus(advanced ? "Item pulado" : "Falha ao pular", advanced ? "#aaa" : "#ff7a7a");
+    UI.updateStatus(
+      advanced ? "Item pulado" : "Falha ao pular",
+      advanced ? "#aaa" : "#ff7a7a",
+    );
     return advanced;
   },
 
@@ -78,7 +81,10 @@ const Loop = {
       }
 
       // Delay variável
-      const jitter = randomBetween(CONFIG.TIMING.LOOP_MIN, CONFIG.TIMING.LOOP_MAX);
+      const jitter = randomBetween(
+        CONFIG.TIMING.LOOP_MIN,
+        CONFIG.TIMING.LOOP_MAX,
+      );
       await wait(jitter);
     }
   },
@@ -121,7 +127,10 @@ const Loop = {
       }
 
       if (!State.settings.ageSkip && AgeSkip.isActive()) {
-        UI.updateStatus("Age gate ativo. Habilite Age Skip ou confirme manualmente.", "#ff7a7a");
+        UI.updateStatus(
+          "Age gate ativo. Habilite Age Skip ou confirme manualmente.",
+          "#ff7a7a",
+        );
         return false;
       }
 

@@ -2,7 +2,7 @@ import { JSDOM } from "jsdom";
 
 export function setupDom(
   html = "<html><body></body></html>",
-  url = "https://store.steampowered.com/app/10/?queue=1"
+  url = "https://store.steampowered.com/app/10/?queue=1",
 ) {
   const dom = new JSDOM(html, { url });
   Object.defineProperty(dom.window.HTMLElement.prototype, "offsetParent", {

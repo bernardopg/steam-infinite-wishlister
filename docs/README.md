@@ -4,9 +4,9 @@ Version covered here: `2.4.0`
 
 ## Language Selection
 
-| Language | Entry |
-|---|---|
-| English | [Open English docs](en/) |
+| Language            | Entry                                     |
+| ------------------- | ----------------------------------------- |
+| English             | [Open English docs](en/)                  |
 | Portuguese (Brazil) | [Abrir documentação em português](pt-br/) |
 
 ## English

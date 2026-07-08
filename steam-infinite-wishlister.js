@@ -1206,7 +1206,10 @@ const Loop = {
     saveStats();
 
     const advanced = await Queue.advance();
-    UI.updateStatus(advanced ? "Item pulado" : "Falha ao pular", advanced ? "#aaa" : "#ff7a7a");
+    UI.updateStatus(
+      advanced ? "Item pulado" : "Falha ao pular",
+      advanced ? "#aaa" : "#ff7a7a",
+    );
     return advanced;
   },
 
@@ -1219,7 +1222,10 @@ const Loop = {
       }
 
       // Delay variável
-      const jitter = randomBetween(CONFIG.TIMING.LOOP_MIN, CONFIG.TIMING.LOOP_MAX);
+      const jitter = randomBetween(
+        CONFIG.TIMING.LOOP_MIN,
+        CONFIG.TIMING.LOOP_MAX,
+      );
       await wait(jitter);
     }
   },
@@ -1262,7 +1268,10 @@ const Loop = {
       }
 
       if (!State.settings.ageSkip && AgeSkip.isActive()) {
-        UI.updateStatus("Age gate ativo. Habilite Age Skip ou confirme manualmente.", "#ff7a7a");
+        UI.updateStatus(
+          "Age gate ativo. Habilite Age Skip ou confirme manualmente.",
+          "#ff7a7a",
+        );
         return false;
       }
 
@@ -1369,7 +1378,10 @@ const applyLatestInfo = (version, url) => {
 const UpdateChecker = {
   restoreCached: () => {
     const latestVersion = GM_getValue(CONFIG.STORAGE.UPDATE_LATEST_VERSION, "");
-    const updateUrl = GM_getValue(CONFIG.STORAGE.UPDATE_URL, CONFIG.URLS.RELEASES);
+    const updateUrl = GM_getValue(
+      CONFIG.STORAGE.UPDATE_URL,
+      CONFIG.URLS.RELEASES,
+    );
 
     if (latestVersion && compareVersions(CONFIG.VERSION, latestVersion) < 0) {
       applyLatestInfo(latestVersion, updateUrl);
@@ -1421,7 +1433,9 @@ const UpdateChecker = {
           try {
             const data = JSON.parse(response.responseText || "{}");
             const latestVersion = String(data.version || "").trim();
-            const updateUrl = String(data.updateUrl || CONFIG.URLS.RELEASES).trim();
+            const updateUrl = String(
+              data.updateUrl || CONFIG.URLS.RELEASES,
+            ).trim();
 
             if (!latestVersion) {
               log("version.json sem campo version", 1);
@@ -1556,7 +1570,7 @@ const toggleSetting = (stateKey, storageKey, checkbox) => {
     toggleSetting(
       "autoRestart",
       CONFIG.STORAGE.AUTO_RESTART,
-      State.ui.restartCheck
+      State.ui.restartCheck,
     );
     log("Auto-Restart: " + (State.settings.autoRestart ? "ON" : "OFF"));
   });
@@ -1565,7 +1579,7 @@ const toggleSetting = (stateKey, storageKey, checkbox) => {
     toggleSetting(
       "requireCards",
       CONFIG.STORAGE.REQUIRE_CARDS,
-      State.ui.cardsCheck
+      State.ui.cardsCheck,
     );
     log("Require Cards: " + (State.settings.requireCards ? "ON" : "OFF"));
   });
@@ -1581,7 +1595,7 @@ const toggleSetting = (stateKey, storageKey, checkbox) => {
       "skipNonGames",
       CONFIG.STORAGE.SKIP_NON_GAMES,
       value,
-      State.ui.nonGamesCheck
+      State.ui.nonGamesCheck,
     );
     // Migração legada
     GM_setValue(CONFIG.STORAGE.SKIP_DLC, value);

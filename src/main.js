@@ -124,7 +124,7 @@ const toggleSetting = (stateKey, storageKey, checkbox) => {
     toggleSetting(
       "autoRestart",
       CONFIG.STORAGE.AUTO_RESTART,
-      State.ui.restartCheck
+      State.ui.restartCheck,
     );
     log("Auto-Restart: " + (State.settings.autoRestart ? "ON" : "OFF"));
   });
@@ -133,7 +133,7 @@ const toggleSetting = (stateKey, storageKey, checkbox) => {
     toggleSetting(
       "requireCards",
       CONFIG.STORAGE.REQUIRE_CARDS,
-      State.ui.cardsCheck
+      State.ui.cardsCheck,
     );
     log("Require Cards: " + (State.settings.requireCards ? "ON" : "OFF"));
   });
@@ -149,7 +149,7 @@ const toggleSetting = (stateKey, storageKey, checkbox) => {
       "skipNonGames",
       CONFIG.STORAGE.SKIP_NON_GAMES,
       value,
-      State.ui.nonGamesCheck
+      State.ui.nonGamesCheck,
     );
     // Migração legada
     GM_setValue(CONFIG.STORAGE.SKIP_DLC, value);

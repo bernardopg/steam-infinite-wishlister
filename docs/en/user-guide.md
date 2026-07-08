@@ -12,25 +12,25 @@ The floating panel appears on supported Steam pages and contains:
 
 ## Buttons
 
-| Button | Behavior |
-|---|---|
-| `Start` | Starts or resumes the loop |
-| `Pause` | Pauses loop execution |
-| `Stop` | Stops loop execution |
-| `Process Once` | Processes current item only once |
-| `Skip Item` | Advances queue manually and increments skipped counter |
-| `_` | Minimizes panel body |
+| Button         | Behavior                                               |
+| -------------- | ------------------------------------------------------ |
+| `Start`        | Starts or resumes the loop                             |
+| `Pause`        | Pauses loop execution                                  |
+| `Stop`         | Stops loop execution                                   |
+| `Process Once` | Processes current item only once                       |
+| `Skip Item`    | Advances queue manually and increments skipped counter |
+| `_`            | Minimizes panel body                                   |
 
 ## Settings
 
-| Setting | Effect |
-|---|---|
-| `Auto-Start` | Start automatically after page load |
-| `Auto-Restart Queue` | Restart queue when empty |
-| `Require Cards` | Skip items without trading cards |
-| `Skip Owned` | Skip games already in library |
-| `Skip Non-Games` | Skip DLC, demo, soundtrack, video and software/tool |
-| `Age Skip` | Try to bypass age gate automatically |
+| Setting              | Effect                                              |
+| -------------------- | --------------------------------------------------- |
+| `Auto-Start`         | Start automatically after page load                 |
+| `Auto-Restart Queue` | Restart queue when empty                            |
+| `Require Cards`      | Skip items without trading cards                    |
+| `Skip Owned`         | Skip games already in library                       |
+| `Skip Non-Games`     | Skip DLC, demo, soundtrack, video and software/tool |
+| `Age Skip`           | Try to bypass age gate automatically                |
 
 ## Processing Flow
 
@@ -57,14 +57,14 @@ Detection uses selector-first strategy and text fallback in known page regions.
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|---|---|
+| Shortcut       | Action       |
+| -------------- | ------------ |
 | `Ctrl+Shift+S` | Start/Resume |
-| `Ctrl+Shift+P` | Pause |
-| `Ctrl+Shift+X` | Stop |
+| `Ctrl+Shift+P` | Pause        |
+| `Ctrl+Shift+X` | Stop         |
 | `Ctrl+Shift+O` | Process Once |
-| `Ctrl+Shift+N` | Skip Item |
-| `Esc` | Stop |
+| `Ctrl+Shift+N` | Skip Item    |
+| `Esc`          | Stop         |
 
 ## Tampermonkey Menu
 

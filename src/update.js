@@ -24,7 +24,10 @@ const applyLatestInfo = (version, url) => {
 const UpdateChecker = {
   restoreCached: () => {
     const latestVersion = GM_getValue(CONFIG.STORAGE.UPDATE_LATEST_VERSION, "");
-    const updateUrl = GM_getValue(CONFIG.STORAGE.UPDATE_URL, CONFIG.URLS.RELEASES);
+    const updateUrl = GM_getValue(
+      CONFIG.STORAGE.UPDATE_URL,
+      CONFIG.URLS.RELEASES,
+    );
 
     if (latestVersion && compareVersions(CONFIG.VERSION, latestVersion) < 0) {
       applyLatestInfo(latestVersion, updateUrl);
@@ -76,7 +79,9 @@ const UpdateChecker = {
           try {
             const data = JSON.parse(response.responseText || "{}");
             const latestVersion = String(data.version || "").trim();
-            const updateUrl = String(data.updateUrl || CONFIG.URLS.RELEASES).trim();
+            const updateUrl = String(
+              data.updateUrl || CONFIG.URLS.RELEASES,
+            ).trim();
 
             if (!latestVersion) {
               log("version.json sem campo version", 1);

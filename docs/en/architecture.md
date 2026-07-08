@@ -8,19 +8,19 @@ Source of truth is `src/`. Build output files are generated artifacts.
 
 ## Runtime Modules
 
-| Module | Responsibility |
-|---|---|
-| `config.js` | Version, timing, selectors, storage keys, static text maps |
-| `state.js` | Global runtime state and settings initialization |
-| `utils.js` | DOM helpers, text normalization, version compare, logging |
-| `game.js` | Cards/owned/non-game detection and skip reason selection |
-| `wishlist.js` | Add-to-wishlist with confirmation polling + retry |
-| `queue.js` | Queue start/restart/advance/empty/finish handling |
-| `ageSkip.js` | Age gate detection and bypass flow |
-| `ui.js` | Floating panel, counters, settings controls, update indicator |
-| `loop.js` | Start/pause/stop/process-once/skip-item orchestration |
-| `update.js` | `version.json` check with cooldown + cache restore |
-| `main.js` | Userscript metadata, init sequence, menu + shortcuts wiring |
+| Module        | Responsibility                                                |
+| ------------- | ------------------------------------------------------------- |
+| `config.js`   | Version, timing, selectors, storage keys, static text maps    |
+| `state.js`    | Global runtime state and settings initialization              |
+| `utils.js`    | DOM helpers, text normalization, version compare, logging     |
+| `game.js`     | Cards/owned/non-game detection and skip reason selection      |
+| `wishlist.js` | Add-to-wishlist with confirmation polling + retry             |
+| `queue.js`    | Queue start/restart/advance/empty/finish handling             |
+| `ageSkip.js`  | Age gate detection and bypass flow                            |
+| `ui.js`       | Floating panel, counters, settings controls, update indicator |
+| `loop.js`     | Start/pause/stop/process-once/skip-item orchestration         |
+| `update.js`   | `version.json` check with cooldown + cache restore            |
+| `main.js`     | Userscript metadata, init sequence, menu + shortcuts wiring   |
 
 ## Build Pipeline
 

@@ -37,7 +37,9 @@ function stripImports(code) {
  * Verifica se um arquivo contém o bloco de metadata de userscript.
  */
 function hasMetadata(code) {
-  return code.includes("// ==UserScript==") && code.includes("// ==/UserScript==");
+  return (
+    code.includes("// ==UserScript==") && code.includes("// ==/UserScript==")
+  );
 }
 
 /**
@@ -72,13 +74,13 @@ async function build() {
     MODULE_ORDER.map(async (m) => {
       const code = await readSource(m);
       return { module: m, code };
-    })
+    }),
   );
 
   const mainFile = files[files.length - 1];
   if (!hasMetadata(mainFile.code)) {
     throw new Error(
-      `Metadata block not found in ${mainFile.module}. Expected // ==UserScript== ... // ==/UserScript==`
+      `Metadata block not found in ${mainFile.module}. Expected // ==UserScript== ... // ==/UserScript==`,
     );
   }
 
@@ -88,7 +90,12 @@ async function build() {
 
   // Monta o corpo final: todos os módulos (sem imports/exports) + corpo do main
   const bodies = [
-    ...files.slice(0, -1).map((f) => `// === Begin: ${f.module} ===\n${stripImports(f.code)}\n// === End: ${f.module} ===`),
+    ...files
+      .slice(0, -1)
+      .map(
+        (f) =>
+          `// === Begin: ${f.module} ===\n${stripImports(f.code)}\n// === End: ${f.module} ===`,
+      ),
     `// === Begin: ${mainFile.module} (body) ===\n${mainBody}\n// === End: ${mainFile.module} ===`,
   ];
 
@@ -108,7 +115,9 @@ async function build() {
 async function check() {
   const mainFile = await readSource("src/main.js");
   if (!hasMetadata(mainFile)) {
-    throw new Error("src/main.js must contain // ==UserScript== metadata block.");
+    throw new Error(
+      "src/main.js must contain // ==UserScript== metadata block.",
+    );
   }
 
   // Verifica que todos os módulos do MODULE_ORDER existem
@@ -128,7 +137,7 @@ async function check() {
     .catch(() => null);
   if (currentOutput === null) {
     throw new Error(
-      "SteamInfiniteWishlister.user.js does not exist. Run `npm run build` first."
+      "SteamInfiniteWishlister.user.js does not exist. Run `npm run build` first.",
     );
   }
 
@@ -139,14 +148,19 @@ async function check() {
     MODULE_ORDER.map(async (m) => {
       const code = await readSource(m);
       return { module: m, code };
-    })
+    }),
   );
 
   const metadata = extractMetadata(files[files.length - 1].code);
   const mainBody = stripImports(extractBody(files[files.length - 1].code));
 
   const bodies = [
-    ...files.slice(0, -1).map((f) => `// === Begin: ${f.module} ===\n${stripImports(f.code)}\n// === End: ${f.module} ===`),
+    ...files
+      .slice(0, -1)
+      .map(
+        (f) =>
+          `// === Begin: ${f.module} ===\n${stripImports(f.code)}\n// === End: ${f.module} ===`,
+      ),
     `// === Begin: ${files[files.length - 1].module} (body) ===\n${mainBody}\n// === End: ${files[files.length - 1].module} ===`,
   ];
 
@@ -156,7 +170,7 @@ async function check() {
   if (currentOutput !== normalized) {
     throw new Error(
       "Generated userscript is out of date. Run `npm run build` before publishing.\n" +
-      "Tip: run `diff <(cat SteamInfiniteWishlister.user.js) <(npm run build --silent && cat SteamInfiniteWishlister.user.js)` to see differences."
+        "Tip: run `diff <(cat SteamInfiniteWishlister.user.js) <(npm run build --silent && cat SteamInfiniteWishlister.user.js)` to see differences.",
     );
   }
 

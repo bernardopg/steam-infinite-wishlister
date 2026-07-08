@@ -15,19 +15,19 @@ Automates Steam Discovery Queue navigation and builds your wishlist with configu
 
 ## Features
 
-| Feature | Status | Notes |
-|---|---|---|
-| Auto wishlist from queue | ✅ | Processes one item at a time with retries |
-| Require Trading Cards filter | ✅ | Detects by selector, icon and metadata links |
-| Skip Owned filter | ✅ | Avoids games already in your library |
-| Skip Non-Games filter | ✅ | Handles DLC, demo, soundtrack, video and software/tool signals |
-| Auto-Restart queue | ✅ | Can be toggled ON/OFF |
-| Age gate bypass | ✅ | Multi-selector bypass with form fallback |
-| Persistent counters | ✅ | Wishlisted and skipped counters persist across sessions |
-| Update checker | ✅ | 24h cooldown, manual check command, panel indicator |
-| Start/Pause/Stop controls | ✅ | Dedicated loop controls |
-| Process Once / Skip Item / Minimize | ✅ | Manual controls in floating panel |
-| Smoke tests | ✅ | Node test suite with jsdom for core flow |
+| Feature                             | Status | Notes                                                          |
+| ----------------------------------- | ------ | -------------------------------------------------------------- |
+| Auto wishlist from queue            | ✅      | Processes one item at a time with retries                      |
+| Require Trading Cards filter        | ✅      | Detects by selector, icon and metadata links                   |
+| Skip Owned filter                   | ✅      | Avoids games already in your library                           |
+| Skip Non-Games filter               | ✅      | Handles DLC, demo, soundtrack, video and software/tool signals |
+| Auto-Restart queue                  | ✅      | Can be toggled ON/OFF                                          |
+| Age gate bypass                     | ✅      | Multi-selector bypass with form fallback                       |
+| Persistent counters                 | ✅      | Wishlisted and skipped counters persist across sessions        |
+| Update checker                      | ✅      | 24h cooldown, manual check command, panel indicator            |
+| Start/Pause/Stop controls           | ✅      | Dedicated loop controls                                        |
+| Process Once / Skip Item / Minimize | ✅      | Manual controls in floating panel                              |
+| Smoke tests                         | ✅      | Node test suite with jsdom for core flow                       |
 
 ## Control Panel
 

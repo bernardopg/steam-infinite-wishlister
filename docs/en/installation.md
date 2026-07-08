@@ -33,21 +33,21 @@
 
 ## Supported URLs
 
-| Scope | Pattern |
-|---|---|
-| Steam app pages | `*://store.steampowered.com/app/*` |
-| Discovery queue | `*://store.steampowered.com/explore*` |
-| Curator pages | `*://store.steampowered.com/curator/*` |
-| Steam community | `*://steamcommunity.com/*` |
+| Scope           | Pattern                                |
+| --------------- | -------------------------------------- |
+| Steam app pages | `*://store.steampowered.com/app/*`     |
+| Discovery queue | `*://store.steampowered.com/explore*`  |
+| Curator pages   | `*://store.steampowered.com/curator/*` |
+| Steam community | `*://steamcommunity.com/*`             |
 
 ## Required Permissions
 
-| Permission | Usage |
-|---|---|
-| `GM_addStyle` | Panel styling |
-| `GM_registerMenuCommand` | Tampermonkey quick actions |
+| Permission                    | Usage                           |
+| ----------------------------- | ------------------------------- |
+| `GM_addStyle`                 | Panel styling                   |
+| `GM_registerMenuCommand`      | Tampermonkey quick actions      |
 | `GM_getValue` / `GM_setValue` | Settings + counters persistence |
-| `GM_xmlhttpRequest` | Version check (`version.json`) |
+| `GM_xmlhttpRequest`           | Version check (`version.json`)  |
 
 ## Common Troubleshooting
 
