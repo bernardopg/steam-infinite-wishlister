@@ -1,3 +1,17 @@
+# Steam Infinite Wishlister v2.4.1
+
+## Maintenance
+
+- Bumped dev dependency `jsdom` from 30.1.1 to 31.0.1.
+- Resolved all `npm audit` advisories in the dev toolchain (`undici` updated to 8.12.4; `source-map-js` no longer in the dependency tree). Supersedes Dependabot PR #4.
+- Added `engines.node` (`^22.22.2 || ^24.15.0 || >=26.0.0`) matching the jsdom 31 requirement.
+- Added `.github/dependabot.yml` for weekly grouped npm and GitHub Actions version updates (previously only security updates were tracked).
+- Synchronized version `2.4.1` across package, userscript header, `config.js`, `version.json` and docs.
+
+No functional changes to the userscript.
+
+---
+
 # Steam Infinite Wishlister v2.4.0
 
 ## Highlights

@@ -6,9 +6,9 @@ O projeto usa versionamento semântico: `MAJOR.MINOR.PATCH`.
 
 Para esta linha de release:
 
-- Versão do pacote: `2.4.0`
-- Header userscript `@version`: `2.4.0`
-- `version.json`: `2.4.0`
+- Versão do pacote: `2.4.1`
+- Header userscript `@version`: `2.4.1`
+- `version.json`: `2.4.1`
 
 ## Checklist de Release
 
@@ -47,17 +47,17 @@ npm run check
 
 ```bash
 git add -A
-git commit -m "release: v2.4.0"
+git commit -m "release: v2.4.1"
 git push origin main
-git tag v2.4.0
-git push origin v2.4.0
+git tag v2.4.1
+git push origin v2.4.1
 ```
 
 Se `gh` CLI estiver disponível/autenticado:
 
 ```bash
-gh release create v2.4.0 \
-  --title "Steam Infinite Wishlister v2.4.0" \
+gh release create v2.4.1 \
+  --title "Steam Infinite Wishlister v2.4.1" \
   --notes-file RELEASE_NOTES.md
 ```
 
@@ -67,7 +67,7 @@ Formato de `version.json`:
 
 ```json
 {
-  "version": "2.4.0",
+  "version": "2.4.1",
   "updateUrl": "https://github.com/bernardopg/steam-infinite-wishlister/releases/latest"
 }
 ```

@@ -1,6 +1,6 @@
 # Steam Infinite Wishlister
 
-[![Version](https://img.shields.io/badge/version-2.4.0-orange.svg)](https://github.com/bernardopg/steam-infinite-wishlister/releases)
+[![Version](https://img.shields.io/badge/version-2.4.1-orange.svg)](https://github.com/bernardopg/steam-infinite-wishlister/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Tampermonkey](https://img.shields.io/badge/Tampermonkey-4.15%2B-FF8039.svg)](https://www.tampermonkey.net/)
 

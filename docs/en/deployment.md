@@ -6,9 +6,9 @@ Project uses semantic versioning: `MAJOR.MINOR.PATCH`.
 
 For this release line:
 
-- Package version: `2.4.0`
-- Userscript header `@version`: `2.4.0`
-- `version.json`: `2.4.0`
+- Package version: `2.4.1`
+- Userscript header `@version`: `2.4.1`
+- `version.json`: `2.4.1`
 
 ## Release Checklist
 
@@ -47,17 +47,17 @@ npm run check
 
 ```bash
 git add -A
-git commit -m "release: v2.4.0"
+git commit -m "release: v2.4.1"
 git push origin main
-git tag v2.4.0
-git push origin v2.4.0
+git tag v2.4.1
+git push origin v2.4.1
 ```
 
 If `gh` CLI is available/authenticated:
 
 ```bash
-gh release create v2.4.0 \
-  --title "Steam Infinite Wishlister v2.4.0" \
+gh release create v2.4.1 \
+  --title "Steam Infinite Wishlister v2.4.1" \
   --notes-file RELEASE_NOTES.md
 ```
 
@@ -67,7 +67,7 @@ gh release create v2.4.0 \
 
 ```json
 {
-  "version": "2.4.0",
+  "version": "2.4.1",
   "updateUrl": "https://github.com/bernardopg/steam-infinite-wishlister/releases/latest"
 }
 ```

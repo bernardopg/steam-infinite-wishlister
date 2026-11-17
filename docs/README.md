@@ -1,6 +1,6 @@
 # Steam Infinite Wishlister Documentation
 
-Version covered here: `2.4.0`
+Version covered here: `2.4.1`
 
 ## Language Selection
 
