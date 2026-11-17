@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam Infinite Wishlister
 // @namespace    http://tampermonkey.net/
-// @version      2.4.0
+// @version      2.4.1
 // @description  Steam Discovery Queue automation with robust filters, controls, counters, age bypass and update checker.
 // @icon         https://store.steampowered.com/favicon.ico
 // @author       bernardopg

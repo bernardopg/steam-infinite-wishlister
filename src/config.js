@@ -1,7 +1,7 @@
 // ==== Configurações ====
 
 const CONFIG = {
-  VERSION: "2.4.0",
+  VERSION: "2.4.1",
 
   TIMING: {
     LOOP_MIN: 700,

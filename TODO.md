@@ -1,7 +1,7 @@
 # TODO - Steam Infinite Wishlister
 
 > Última atualização: 2026-04-13
-> Versão atual: 2.4.0
+> Versão atual: 2.4.1
 
 ## Concluído na v2.4.0
 
